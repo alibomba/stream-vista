@@ -1,0 +1,52 @@
+.section {
+    margin-top: 5em;
+    padding: 2em;
+}
+
+.section__heading {
+    font-size: 3.5rem;
+    text-align: center;
+}
+
+.section__row {
+    margin-top: 2.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+    flex-wrap: wrap;
+}
+
+.section__button {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    margin-top: 2em;
+    font-size: 2.5rem;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    background-color: var(--secondary);
+    padding: .3em .8em;
+    border-radius: 150px;
+    transition: var(--transition);
+}
+
+.section__button:hover,
+.section__button:focus {
+    background-color: var(--secondary-hover);
+}
+
+@media(max-width: 550px) {
+    .section {
+        padding: 1em;
+    }
+
+    .section__heading {
+        font-size: 2.6rem;
+    }
+
+    .section__button {
+        font-size: 2rem;
+    }
+}

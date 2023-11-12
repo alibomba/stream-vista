@@ -1,0 +1,13 @@
+export { default as ContentResults } from './contentResults/ContentResults';
+export { default as Homepage } from './homepage/Homepage';
+export { default as LandingPage } from './landingPage/LandingPage';
+export { default as Login } from './login/Login';
+export { default as Movie } from './movie/Movie';
+export { default as MovieDetails } from './movieDetails/MovieDetails';
+export { default as Plans } from './plans/Plans';
+export { default as Preferences } from './preferences/Preferences';
+export { default as Profile } from './profile/Profile';
+export { default as Register } from './register/Register';
+export { default as Series } from './series/Series';
+export { default as SeriesDetails } from './seriesDetails/SeriesDetails';
+export { default as NotFound } from './notFound/NotFound';

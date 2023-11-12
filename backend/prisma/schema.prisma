@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RefreshToken {
+  id       String   @id @default(uuid())
+  token    String   @unique
+  issuedAt DateTime @default(now()) @db.Timestamptz()
+}
+
+model User {
+  id                     String                  @id @default(uuid())
+  email                  String                  @unique @db.VarChar(100)
+  password               String?
+  oAuth                  Boolean
+  isSubscriptionPaid     Boolean                 @default(false)
+  Subscription           Subscription?
+  toWatch                ToWatch[]
+  tracks                 Track[]
+  membershipCancellation MembershipCancellation?
+  preferencedCategories  String[]
+}
+
+model MembershipCancellation {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  cancellationDate DateTime @default(now()) @db.Timestamptz()
+}
+
+model Subscription {
+  id                         String   @id @default(uuid())
+  subscriptionLengthInMonths Int
+  paidAt                     DateTime @default(now()) @db.Timestamptz()
+  nextPaymentDate            DateTime @db.Timestamptz()
+  cardOwner                  String
+  cardNumber                 String
+  cardExpirationDate         String
+  cardCVV                    String
+  userId                     String   @unique
+  user                       User     @relation(fields: [userId], references: [id])
+}
+
+model Series {
+  id           String    @id @default(uuid())
+  title        String    @unique @db.VarChar(150)
+  description  String
+  trailerUrl   String
+  thumbnailUrl String
+  warnings     String[]
+  actors       String[]
+  creators     String[]
+  episodes     Episode[]
+  categories   String[]
+  seasons      Int
+  year         Int
+  toWatchItems ToWatch[]
+}
+
+model Episode {
+  id            String     @id @default(uuid())
+  title         String     @db.VarChar(150)
+  description   String
+  thumbnailUrl  String
+  sourceUrl     String
+  season        Int
+  episodeNumber Int
+  minutes       Int
+  seriesId      String
+  series        Series     @relation(fields: [seriesId], references: [id])
+  subtitles     Subtitle[]
+  tracks        Track[]
+}
+
+model Movie {
+  id           String     @id @default(uuid())
+  title        String     @unique @db.VarChar(150)
+  description  String
+  thumbnailUrl String
+  trailerUrl   String
+  sourceUrl    String
+  warnings     String[]
+  actors       String[]
+  creators     String[]
+  categories   String[]
+  minutes      Int
+  subtitles    Subtitle[]
+  year         Int
+  toWatchItems ToWatch[]
+  tracks       Track[]
+}
+
+model Subtitle {
+  id          String   @id @default(uuid())
+  startSecond Float
+  endSecond   Float
+  text        String   @db.VarChar(255)
+  language    String
+  episodeId   String?
+  episode     Episode? @relation(fields: [episodeId], references: [id])
+  movieId     String?
+  movie       Movie?   @relation(fields: [movieId], references: [id])
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique @db.VarChar(150)
+}
+
+model ToWatch {
+  id       String  @id @default(uuid())
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  seriesId String?
+  series   Series? @relation(fields: [seriesId], references: [id])
+  movieId  String?
+  movie    Movie?  @relation(fields: [movieId], references: [id])
+}
+
+model Track {
+  id           String   @id @default(uuid())
+  isMovie      Boolean
+  episodeId    String?
+  episode      Episode? @relation(fields: [episodeId], references: [id])
+  movieId      String?
+  movie        Movie?   @relation(fields: [movieId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  timestamp    Int
+  isOnHomepage Boolean  @default(true)
+}
+
+model ContactMessage {
+  id          String   @id @default(uuid())
+  fullName    String   @db.VarChar(150)
+  email       String   @db.VarChar(70)
+  phoneNumber String   @db.VarChar(30)
+  subject     String   @db.VarChar(255)
+  content     String
+  sentAt      DateTime @default(now()) @db.Timestamptz()
+  processed   Boolean  @default(false)
+}

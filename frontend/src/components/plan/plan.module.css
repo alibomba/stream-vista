@@ -1,0 +1,76 @@
+.plan {
+    width: 28em;
+    min-height: 35em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: .5em;
+    border: 3px solid var(--secondary);
+    padding: 1em;
+    border-radius: 25px;
+    box-shadow: 7px 7px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.plan__period {
+    font-size: 3rem;
+}
+
+.plan__price {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.plan__discount {
+    font-size: 1.8rem;
+    font-weight: 500;
+}
+
+.plan__perks {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1em;
+    margin-top: 2em;
+    font-size: 1.3rem;
+}
+
+.plan__perk {
+    display: flex;
+    align-items: center;
+    gap: .5em;
+}
+
+.perk__icon {
+    font-size: 1.5rem;
+    color: var(--primary);
+}
+
+@media(max-width:500px) {
+    .plan {
+        width: 100%;
+        min-height: auto;
+    }
+
+    .plan__period {
+        font-size: 2.6rem;
+    }
+
+    .plan__price {
+        font-size: 2.1rem;
+    }
+
+    .plan__discount {
+        font-size: 1.5rem;
+    }
+
+    .plan__perks {
+        font-size: 1rem;
+    }
+
+    .perk__icon {
+        font-size: 1rem;
+    }
+}
