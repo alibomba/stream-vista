@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ContentResults, Homepage, LandingPage, Login, Movie, MovieDetails, Plans, Preferences, Profile, Register, Series, SeriesDetails, NotFound } from './pages';
 import DefaultLayout from './layouts/DefaultLayout';
-import AuthProvider from './contexts/AuthProvider';
+import { AuthProvider } from './contexts/AuthProvider';
 
 function App() {
 

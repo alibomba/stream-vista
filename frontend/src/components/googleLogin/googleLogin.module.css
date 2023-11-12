@@ -1,0 +1,25 @@
+.button {
+    width: 100%;
+    background-color: white;
+    padding: .3em;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.button:hover,
+.button:focus {
+    background-color: #EEE;
+}
+
+@media(max-width:530px) {
+    .button {
+        font-size: 1.65rem;
+    }
+}

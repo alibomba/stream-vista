@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import axiosClient from '../axiosClient';
 import axios from 'axios';
 
-interface ContextType {
+export interface ContextType {
     isLoading: boolean;
     isAuthorized: boolean;
     setIsAuthorized: React.Dispatch<React.SetStateAction<boolean>>;
@@ -63,4 +63,4 @@ const AuthProvider = ({ children }: Props) => {
     )
 }
 
-export default AuthProvider
+export { AuthContext, AuthProvider }

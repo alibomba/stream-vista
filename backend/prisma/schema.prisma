@@ -18,7 +18,7 @@ model RefreshToken {
 
 model User {
   id                     String                  @id @default(uuid())
-  email                  String                  @unique @db.VarChar(100)
+  email                  String                  @unique @db.VarChar(70)
   password               String?
   oAuth                  Boolean
   isSubscriptionPaid     Boolean                 @default(false)

@@ -5,6 +5,7 @@ import './index.css'
 declare global {
   interface Window {
     google: any;
+    handleGoogleLogin: any;
   }
 }
 
