@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { BsFillCheckCircleFill } from 'react-icons/bs';
+import axiosClient from '../../axiosClient';
+import Error from '../error/Error';
 
 
 import styles from './plan.module.css';
@@ -7,9 +10,31 @@ interface Props {
     period: string;
     price: number;
     discountPerMonth?: number;
+    priceId?: string;
 }
 
-const Plan = ({ period, price, discountPerMonth }: Props) => {
+const Plan = ({ period, price, discountPerMonth, priceId }: Props) => {
+    const [error, setError] = useState<string | null>(null);
+
+    async function checkout() {
+        try {
+            const res = await axiosClient({
+                method: 'post',
+                url: '/subscribe',
+                data: {
+                    priceId
+                }
+            });
+            window.location = res.data.url;
+        } catch (err: any) {
+            setError(err?.response?.data?.message);
+        }
+    }
+
+    if (error) {
+        return <Error>{error}</Error>
+    }
+
     return (
         <article className={styles.plan}>
             <h3 className={styles.plan__period}>{period}</h3>
@@ -43,6 +68,9 @@ const Plan = ({ period, price, discountPerMonth }: Props) => {
                     Wsparcie techniczne 24/7
                 </p>
             </div>
+            {
+                priceId && <button onClick={checkout} className={styles.plan__button}>Wybierz</button>
+            }
         </article>
     )
 }

@@ -3,8 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWTUser } from '../types';
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client, auth } from 'google-auth-library';
 import jwtAuthentication from '../middleware/jwtAuthentication';
+import isSubscriptionActive from '../middleware/isSubscriptionActive';
 
 const authRoutes: Router = Router();
 const prisma = new PrismaClient();
@@ -124,16 +125,18 @@ authRoutes.post('/refresh', async (req: Request, res: Response) => {
     });
 });
 
-authRoutes.get('/auth', jwtAuthentication, async (req: Request, res: Response) => {
+authRoutes.get('/auth', jwtAuthentication, (req: Request, res: Response) => {
     if (req.body.user) {
-        const user = await prisma.user.findUnique({ where: { id: req.body.user.id } });
-        if (!user) return res.sendStatus(404);
-        res.json({ isPaid: user.isSubscriptionPaid });
+        res.sendStatus(204);
     }
     else {
         res.status(401).json({ message: 'Token nieprawidłowy' });
     }
 });
+
+authRoutes.get('/is-subscription-active', jwtAuthentication, isSubscriptionActive, (req: Request, res: Response) => {
+    res.sendStatus(204);
+})
 
 authRoutes.delete('/logout', jwtAuthentication, async (req: Request, res: Response) => {
     const { token } = req.body;

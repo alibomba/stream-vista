@@ -17,7 +17,7 @@ const DefaultLayout = () => {
         return <Navigate to='/logowanie' />
     }
 
-    if (!isLoading && isAuthorized && isPaid) {
+    if (!isLoading && isAuthorized && !isPaid) {
         return <Navigate to='/plany' />
     }
 

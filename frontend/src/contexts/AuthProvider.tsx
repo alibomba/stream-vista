@@ -28,20 +28,33 @@ const AuthProvider = ({ children }: Props) => {
     useEffect(() => {
         const source = axios.CancelToken.source();
 
-        axiosClient({
-            method: 'get',
-            url: '/auth',
-            cancelToken: source.token
-        })
-            .then(res => {
+        async function fetchData() {
+            try {
+                await axiosClient({
+                    method: 'get',
+                    url: '/auth',
+                    cancelToken: source.token
+                })
                 setIsAuthorized(true);
-                const { isPaidRes } = res.data;
-                setIsPaid(isPaidRes);
-            })
-            .catch(() => {
+            } catch (err) {
                 setIsAuthorized(false);
-            })
-            .finally(() => setIsLoading(false));
+            }
+
+            try {
+                await axiosClient({
+                    method: 'get',
+                    url: '/is-subscription-active',
+                    cancelToken: source.token
+                });
+                setIsPaid(true);
+            } catch (err) {
+                setIsPaid(false);
+            }
+
+            setIsLoading(false);
+        }
+
+        fetchData();
 
         return () => {
             source.cancel();

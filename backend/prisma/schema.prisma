@@ -17,36 +17,14 @@ model RefreshToken {
 }
 
 model User {
-  id                     String                  @id @default(uuid())
-  email                  String                  @unique @db.VarChar(70)
-  password               String?
-  oAuth                  Boolean
-  isSubscriptionPaid     Boolean                 @default(false)
-  Subscription           Subscription?
-  toWatch                ToWatch[]
-  tracks                 Track[]
-  membershipCancellation MembershipCancellation?
-  preferencedCategories  String[]
-}
-
-model MembershipCancellation {
-  id               String   @id @default(uuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id])
-  cancellationDate DateTime @default(now()) @db.Timestamptz()
-}
-
-model Subscription {
-  id                         String   @id @default(uuid())
-  subscriptionLengthInMonths Int
-  paidAt                     DateTime @default(now()) @db.Timestamptz()
-  nextPaymentDate            DateTime @db.Timestamptz()
-  cardOwner                  String
-  cardNumber                 String
-  cardExpirationDate         String
-  cardCVV                    String
-  userId                     String   @unique
-  user                       User     @relation(fields: [userId], references: [id])
+  id                    String    @id @default(uuid())
+  email                 String    @unique @db.VarChar(70)
+  password              String?
+  oAuth                 Boolean
+  toWatch               ToWatch[]
+  tracks                Track[]
+  preferencedCategories String[]
+  stripeCustomerId      String?   @unique
 }
 
 model Series {

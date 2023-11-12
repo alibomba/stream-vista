@@ -48,6 +48,24 @@
     color: var(--primary);
 }
 
+.plan__button {
+    font-size: 2rem;
+    margin-top: .7em;
+    padding: .3em .8em;
+    color: white;
+    font-weight: 500;
+    background-color: var(--primary);
+    border: none;
+    border-radius: 150px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.plan__button:hover,
+.plan__button:focus {
+    background-color: var(--primary-hover);
+}
+
 @media(max-width:500px) {
     .plan {
         width: 100%;
@@ -72,5 +90,9 @@
 
     .perk__icon {
         font-size: 1rem;
+    }
+
+    .plan__button {
+        font-size: 1.5rem;
     }
 }

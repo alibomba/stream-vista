@@ -1,0 +1,14 @@
+.main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em;
+    margin-top: 7em;
+}
+
+@media(max-width:1410px) {
+    .main {
+        flex-direction: column;
+        gap: 2em;
+    }
+}
