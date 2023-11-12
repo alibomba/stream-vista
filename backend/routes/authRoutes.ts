@@ -67,7 +67,7 @@ authRoutes.post('/google-login', async (req: Request, res: Response) => {
     if (!googleUser) return res.status(401).json({ message: 'Niepoprawny token' });
     const userFound = await prisma.user.findUnique({ where: { email: googleUser.email } });
     if (!googleUser.email) return res.status(422).json({ message: 'Adres e-mail jest wymagany' });
-    if (userFound) {
+    if (userFound && userFound.oAuth) {
         const JWTUser: JWTUser = { id: userFound.id, email: userFound.email };
         const accessToken = jwt.sign(JWTUser, process.env.JWT_SECRET as string, { expiresIn: process.env.JWT_TTL });
         const refreshToken = jwt.sign(JWTUser, process.env.JWT_REFRESH_SECRET as string);
@@ -81,7 +81,7 @@ authRoutes.post('/google-login', async (req: Request, res: Response) => {
         } catch (err) {
             res.sendStatus(500);
         }
-    } else {
+    } else if (!userFound) {
         try {
             const newUser = await prisma.user.create({
                 data: {
@@ -105,6 +105,9 @@ authRoutes.post('/google-login', async (req: Request, res: Response) => {
         } catch (err) {
             res.sendStatus(500);
         }
+    }
+    else if (userFound && !userFound.oAuth) {
+        return res.status(422).json({ message: 'Adres e-mail jest już zajęty' });
     }
 });
 
