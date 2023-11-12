@@ -5,6 +5,7 @@ import categorySeeder from "./categorySeeder";
 import movieSeeder from "./movieSeeder";
 import seriesSeeder from "./seriesSeeder";
 import episodeSeeder from "./episodeSeeder";
+import userSeeder from "./userSeeder";
 
 async function truncate() {
     await prisma.category.deleteMany();
@@ -19,6 +20,7 @@ async function truncate() {
     await prisma.user.deleteMany();
     await prisma.contactMessage.deleteMany();
     await prisma.membershipCancellation.deleteMany();
+    await prisma.newsletterMember.deleteMany();
 }
 
 async function main() {
@@ -27,7 +29,7 @@ async function main() {
     await movieSeeder();
     await seriesSeeder();
     await episodeSeeder();
-
+    await userSeeder();
 }
 
 main();

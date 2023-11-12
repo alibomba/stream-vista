@@ -148,3 +148,9 @@ model ContactMessage {
   sentAt      DateTime @default(now()) @db.Timestamptz()
   processed   Boolean  @default(false)
 }
+
+model NewsletterMember {
+  id       String   @id @default(uuid())
+  email    String   @unique @db.VarChar(70)
+  joinedAt DateTime @default(now()) @db.Timestamptz()
+}

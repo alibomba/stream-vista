@@ -13,6 +13,8 @@ function App() {
           <Route path='/' element={<LandingPage />} />
           <Route path='/logowanie' element={<Login />} />
           <Route path='/rejestracja' element={<Register />} />
+          <Route path='/plany' element={<Plans />} />
+          <Route path='/preferencje' element={<Preferences />} />
           <Route path='/' element={<DefaultLayout />}>
             <Route path='/homepage' element={<Homepage />} />
             <Route path='/seriale' element={<ContentResults variant='seriale' />} />
@@ -23,8 +25,6 @@ function App() {
             <Route path='/serial/:id' element={<Series />} />
             <Route path='/film/:id' element={<Movie />} />
             <Route path='/profil' element={<Profile />} />
-            <Route path='/plany' element={<Plans />} />
-            <Route path='/preferencje' element={<Preferences />} />
           </Route>
         </Routes>
       </BrowserRouter>

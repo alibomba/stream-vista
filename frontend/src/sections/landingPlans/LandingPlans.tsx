@@ -6,7 +6,7 @@ import Plan from '../../components/plan/Plan';
 
 const LandingPlans = () => {
     return (
-        <section className={styles.section}>
+        <section id='plans' className={styles.section}>
             <h2 className={styles.section__heading}>Wybierz swój plan</h2>
             <div className={styles.section__row}>
                 <Plan period='Miesiąc' price={35} />
