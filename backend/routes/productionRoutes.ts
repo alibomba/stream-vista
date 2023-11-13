@@ -71,8 +71,9 @@ productionRoutes.get('/search', jwtAuthentication, isSubscriptionActive, async (
     const { user: { id } } = req.body;
     const user = await prisma.user.findUnique({ where: { id }, select: { preferencedCategories: true } });
     if (!user) return res.sendStatus(404);
-    const phrase = req.query.phrase as string | undefined;
-    if (!phrase) return res.status(422).json({ message: 'Fraza jest wymagana' });
+    const phraseParam = req.query.phrase as string | undefined;
+    if (!phraseParam) return res.status(422).json({ message: 'Fraza jest wymagana' });
+    const phrase = phraseParam.toLowerCase();
 
     const results = await prisma.$transaction([
         prisma.series.findMany({
