@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes';
 import contactRoutes from './routes/contactRoutes';
 import newsletterRoutes from './routes/newsletterRoutes';
 import subscriptionRoutes from './routes/subscriptionRoutes';
+import productionRoutes from './routes/productionRoutes';
 
 app.use(cors({
     origin: process.env.FRONTEND_URL
@@ -21,6 +22,7 @@ app.use('/api', authRoutes);
 app.use('/api', contactRoutes);
 app.use('/api', newsletterRoutes);
 app.use('/api', subscriptionRoutes);
+app.use('/api', productionRoutes);
 
 const PORT = process.env.PORT || 8000;
 

@@ -13,13 +13,11 @@ async function truncate() {
     await prisma.movie.deleteMany();
     await prisma.refreshToken.deleteMany();
     await prisma.series.deleteMany();
-    await prisma.subscription.deleteMany();
     await prisma.subtitle.deleteMany();
     await prisma.toWatch.deleteMany();
     await prisma.track.deleteMany();
     await prisma.user.deleteMany();
     await prisma.contactMessage.deleteMany();
-    await prisma.membershipCancellation.deleteMany();
     await prisma.newsletterMember.deleteMany();
 }
 

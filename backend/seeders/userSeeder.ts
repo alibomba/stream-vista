@@ -8,7 +8,8 @@ async function userSeeder() {
             email: 'ali.gamer@op.pl',
             password: '$2b$10$nHEy5SeZiWvdl.IVTmHYW.uGkuUbqhMiyC7KJ1zZP5Fn45pPUyZO6',
             oAuth: false,
-            preferencedCategories: ['Science Fiction', 'Thriller', 'Psychologiczne', 'Akcja', 'Postapokaliptyczne']
+            preferencedCategories: ['Science Fiction', 'Thriller', 'Psychologiczne', 'Akcja', 'Postapokaliptyczne'],
+            stripeCustomerId: 'cus_P00cSKnz9I7qrx'
         }
     })
 }
