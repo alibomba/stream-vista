@@ -2,6 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { AuthContext, ContextType } from '../contexts/AuthProvider';
 import { Navigate } from 'react-router-dom';
 import { Outlet } from 'react-router-dom';
+import { Header } from '../sections';
 import axiosClient from '../axiosClient';
 import axios from 'axios';
 import Error from '../components/error/Error';
@@ -61,6 +62,7 @@ const DefaultLayout = () => {
                 pageLoading ? <Loading /> :
                     userCategories.length === 0 ? <Navigate to='/preferencje' /> :
                         <>
+                            <Header />
                             <Outlet />
                         </>
             }
