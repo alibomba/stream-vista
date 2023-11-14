@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { JWTUser } from '../types';
-import { OAuth2Client, auth } from 'google-auth-library';
+import { OAuth2Client } from 'google-auth-library';
 import jwtAuthentication from '../middleware/jwtAuthentication';
 import isSubscriptionActive from '../middleware/isSubscriptionActive';
 
