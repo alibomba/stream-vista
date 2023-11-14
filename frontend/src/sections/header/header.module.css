@@ -164,3 +164,15 @@
         max-width: 300px;
     }
 }
+
+@media(max-width:410px) {
+    .header__searchInput_active {
+        max-width: 200px;
+    }
+}
+
+@media(max-width:320px) {
+    .header__searchInput_active {
+        max-width: 140px;
+    }
+}

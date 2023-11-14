@@ -7,6 +7,7 @@ export interface ContextType {
     isAuthorized: boolean;
     setIsAuthorized: React.Dispatch<React.SetStateAction<boolean>>;
     isPaid: boolean;
+    setIsPaid: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface Props {
@@ -17,7 +18,8 @@ const AuthContext = createContext<ContextType>({
     isLoading: true,
     isAuthorized: false,
     setIsAuthorized: () => false,
-    isPaid: false
+    isPaid: false,
+    setIsPaid: () => false
 });
 
 const AuthProvider = ({ children }: Props) => {
@@ -66,7 +68,8 @@ const AuthProvider = ({ children }: Props) => {
         isLoading,
         isAuthorized,
         setIsAuthorized,
-        isPaid
+        isPaid,
+        setIsPaid
     };
 
     return (

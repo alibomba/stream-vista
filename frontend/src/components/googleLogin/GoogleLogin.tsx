@@ -11,7 +11,7 @@ import styles from './googleLogin.module.css';
 
 const GoogleLogin = () => {
     const navigate = useNavigate();
-    const { setIsAuthorized } = useContext<ContextType>(AuthContext);
+    const { setIsAuthorized, setIsPaid } = useContext<ContextType>(AuthContext);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'bad' });
     const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +29,6 @@ const GoogleLogin = () => {
             setIsAuthorized(true);
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
-            navigate('/homepage');
         } catch (err: any) {
             if (err?.response?.status === 422 || err?.response?.status === 401) {
                 setPopup({ content: err?.response?.data?.message, active: true, type: 'bad' });
@@ -38,6 +37,19 @@ const GoogleLogin = () => {
                 setError('Coś poszło nie tak, spróbuj ponownie później...');
             }
         }
+
+        try {
+            await axiosClient({
+                method: 'get',
+                url: '/is-subscription-active'
+            });
+            setIsPaid(true);
+        } catch (err) {
+            setIsPaid(false);
+        }
+
+        navigate('/homepage');
+
     }
 
     useEffect(() => {

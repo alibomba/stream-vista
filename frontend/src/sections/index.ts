@@ -7,3 +7,5 @@ export { default as LandingContact } from './landingContact/LandingContact';
 export { default as LandingFAQ } from './landingFAQ/LandingFAQ';
 export { default as Footer } from './footer/Footer';
 export { default as Header } from './header/Header';
+export { default as HomeHero } from './homeHero/HomeHero';
+export { default as Feed } from './feed/Feed';

@@ -1,13 +1,18 @@
 
-
+import ProductionTile from '../../components/productionTile/ProductionTile';
+import { HomeHero, Feed } from '../../sections';
 
 import styles from './homepage.module.css';
 
 const Homepage = () => {
     return (
-        <div>
+        <>
+            <HomeHero />
+            <Feed heading='Wybrane dla Ciebie'>
+                <ProductionTile />
+            </Feed>
 
-        </div>
+        </>
     )
 }
 

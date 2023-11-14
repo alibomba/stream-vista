@@ -10,7 +10,7 @@ import styles from './login.module.css';
 
 const Login = () => {
     const navigate = useNavigate();
-    const { isAuthorized, setIsAuthorized, isLoading } = useContext<ContextType>(AuthContext);
+    const { isAuthorized, setIsAuthorized, isLoading, setIsPaid } = useContext<ContextType>(AuthContext);
     const [loginError, setLoginError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +33,6 @@ const Login = () => {
             setIsAuthorized(true);
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
-            navigate('/homepage');
         } catch (err: any) {
             if (err?.response?.status === 401) {
                 setLoginError(err?.response?.data?.message);
@@ -41,6 +40,18 @@ const Login = () => {
                 setError('Coś poszło nie tak, spróbuj ponownie później...');
             }
         }
+
+        try {
+            await axiosClient({
+                method: 'get',
+                url: '/is-subscription-active'
+            });
+            setIsPaid(true);
+        } catch (err) {
+            setIsPaid(false);
+        }
+
+        navigate('/homepage');
     }
 
     if (isLoading) {
