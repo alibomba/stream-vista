@@ -1,0 +1,124 @@
+.production {
+    width: 500px;
+    height: 250px;
+    position: relative;
+    transition: var(--transition);
+}
+
+.production_active {
+    scale: 1.1;
+}
+
+.production__thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+    border-radius: 15px;
+}
+
+.production_active .production__thumbnail {
+    border-radius: 15px 15px 0 0;
+    box-shadow: 7px 0px 10px 10px rgba(0, 0, 0, 0.25);
+}
+
+.production__info {
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    padding: .8em;
+    padding-bottom: 2.5em;
+    background-color: #2E2E2E;
+    color: white;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 7px 7px 10px 10px rgba(0, 0, 0, 0.25);
+    display: none;
+}
+
+.production_active .production__info {
+    display: block;
+}
+
+.info__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5em;
+}
+
+.info__title {
+    font-size: 2rem;
+}
+
+.info__buttons {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.info__button {
+    all: unset;
+    font-size: 1.8rem;
+    background-color: var(--primary);
+    display: grid;
+    place-items: center;
+    padding: .3em;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.info__button:hover,
+.info__button:focus {
+    background-color: var(--primary-hover);
+}
+
+.info__warnings {
+    font-size: 1.5rem;
+    margin-top: .5em;
+}
+
+.info__description {
+    margin-top: 1.25em;
+    font-size: 1.5rem;
+    line-height: 1.5;
+}
+
+.info__progress {
+    position: absolute;
+    font-size: 2rem;
+    font-weight: 500;
+    bottom: .3em;
+    right: .5em;
+}
+
+@media(max-width:500px) {
+    .production {
+        width: 100%;
+    }
+
+    .info__top {
+        flex-direction: column;
+    }
+
+    .info__title {
+        font-size: 1.7rem;
+    }
+
+    .info__button {
+        font-size: 1.55rem;
+    }
+
+    .info__warnings {
+        font-size: 1.3rem;
+    }
+
+    .info__description {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .info__progress {
+        font-size: 1.5rem;
+    }
+}

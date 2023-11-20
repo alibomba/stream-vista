@@ -35,6 +35,7 @@ async function episodeSeeder() {
                 sourceUrl: 'zaginione-swiatlo-odc.mp4'
             },
             {
+                id: '6b7bf480-9909-42f3-9f9d-8c5399279607',
                 title: 'Ostatni Templariusze: Wstęp',
                 description: 'W trzecim sezonie ekipa kieruje się do Europy, aby odnaleźć legendarny skarb templariuszy. Odcinek ten wprowadza widzów w historię templariuszy i ich tajemnicze praktyki.',
                 season: 1,
@@ -245,6 +246,7 @@ async function episodeSeeder() {
                 sourceUrl: 'przestrzen-nieskonczona-odc.mp4'
             },
             {
+                id: '10acf517-0d84-4f33-8f16-06e7d366940c',
                 title: 'Niezbadane Gwiazdy',
                 description: 'Statek kosmiczny wprowadza się w obszar kosmosu, w którym gwiazdy wydają się posłuszne innym zasadom fizyki.',
                 season: 1,
@@ -315,6 +317,7 @@ async function episodeSeeder() {
                 sourceUrl: 'mroczne-zagadki-odc.mp4'
             },
             {
+                id: "5452f540-918b-4266-827a-e5bbf11e88e5",
                 title: 'Zagubione Dziecko Widmo',
                 description: 'Śledztwo w sprawie zaginionego dziecka prowadzi Julię do zderzenia z zjawiskiem widma, które zdaje się chronić tajemnicę.',
                 season: 1,
@@ -685,6 +688,7 @@ async function episodeSeeder() {
                 sourceUrl: 'milosc-na-mazurach-odc.mp4'
             },
             {
+                id: "bdf108a3-56b6-4824-9c7e-261db273ca74",
                 title: 'Wędrówka Przez Mazurskie Lasy',
                 description: 'Bohaterowie decydują się na wędrówkę przez mazurskie lasy, gdzie odkrywają nieznane zakątki i starożytne opowieści.',
                 season: 2,

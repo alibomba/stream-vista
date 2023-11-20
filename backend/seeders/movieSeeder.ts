@@ -5,6 +5,7 @@ async function movieSeeder() {
     await prisma.movie.createMany({
         data: [
             {
+                id: "00c97d28-8219-4fcd-af50-9045785259fc",
                 title: 'Paradoks Kwantowy',
                 description: 'Wciągająca podróż przez równoległe wszechświaty, gdzie tajemnicze zjawiska kwantowe prowadzą bohaterów do odkryć, które zmieniają ich postrzeganie rzeczywistości. Czy nauka może przekroczyć granice ludzkiego rozumienia?',
                 actors: ['jan kowalski', 'anna nowak', 'michał wiśniewski'],
@@ -17,6 +18,7 @@ async function movieSeeder() {
                 sourceUrl: 'quantum-paradox.mp4'
             },
             {
+                id: "965049aa-ffed-4402-9365-dc86d30da408",
                 title: 'Północna Złodziejka',
                 description: 'Wielowątkowa historia grupy utalentowanych złodziei, których plany na ostateczny nocny skok stają się coraz bardziej skomplikowane w miarę, jak ich lojalności i relacje zostają wystawione na próbę. Czy kradzież może być jednocześnie spektakularna i moralnie złożona?',
                 warnings: ['18+', 'Przemoc'],
@@ -55,6 +57,7 @@ async function movieSeeder() {
                 sourceUrl: 'wieczna-harmonia.mp4'
             },
             {
+                id: 'ba474397-5599-4333-bf75-4b720b3278ba',
                 title: 'Miasto Cieni',
                 description: 'Wciągający thriller kryminalny, który przenosi widza do mrocznego podziemia rozległej metropolii, gdzie bohaterowie muszą rozwiązać skomplikowaną intrygę, aby ocalić to, co najważniejsze. Czy sprawiedliwość może zwyciężyć w mieście cieni?',
                 warnings: ['Przemoc', 'Narkotyki'],

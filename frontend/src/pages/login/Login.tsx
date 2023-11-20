@@ -33,6 +33,16 @@ const Login = () => {
             setIsAuthorized(true);
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
+            try {
+                await axiosClient({
+                    method: 'get',
+                    url: '/is-subscription-active'
+                });
+                setIsPaid(true);
+            } catch (err) {
+                setIsPaid(false);
+            }
+            navigate('/homepage');
         } catch (err: any) {
             if (err?.response?.status === 401) {
                 setLoginError(err?.response?.data?.message);
@@ -41,17 +51,6 @@ const Login = () => {
             }
         }
 
-        try {
-            await axiosClient({
-                method: 'get',
-                url: '/is-subscription-active'
-            });
-            setIsPaid(true);
-        } catch (err) {
-            setIsPaid(false);
-        }
-
-        navigate('/homepage');
     }
 
     if (isLoading) {
@@ -70,7 +69,7 @@ const Login = () => {
         <form onSubmit={login} className={styles.form}>
             <img className={styles.form__img} src="/img/logo.png" alt="logo Stream Vista" />
             <input required className={styles.form__input} placeholder='E-mail' aria-label='E-mail' id='email' type="email" maxLength={70} />
-            <input required className={styles.form__input} placeholder='Hasło' aria-label='Hasło' id='password' type="password" maxLength={60} />
+            <input autoComplete='#password' required className={styles.form__input} placeholder='Hasło' aria-label='Hasło' id='password' type="password" maxLength={60} />
             {
                 loginError && <p role='alert' aria-live='assertive' className={styles.form__error}>{loginError}</p>
             }
