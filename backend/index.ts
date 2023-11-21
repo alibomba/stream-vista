@@ -13,6 +13,7 @@ import productionRoutes from './routes/productionRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import trackRoutes from './routes/trackRoutes';
 import watchListRoutes from './routes/watchListRoutes';
+import seriesRoutes from './routes/seriesRoutes';
 
 app.use(cors({
     origin: process.env.FRONTEND_URL
@@ -29,6 +30,7 @@ app.use('/api', productionRoutes);
 app.use('/api', categoryRoutes);
 app.use('/api', trackRoutes);
 app.use('/api', watchListRoutes);
+app.use('/api', seriesRoutes);
 
 const PORT = process.env.PORT || 8000;
 

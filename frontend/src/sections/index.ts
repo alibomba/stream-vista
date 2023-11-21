@@ -9,3 +9,5 @@ export { default as Footer } from './footer/Footer';
 export { default as Header } from './header/Header';
 export { default as HomeHero } from './homeHero/HomeHero';
 export { default as Feed } from './feed/Feed';
+export { default as EpisodeList } from './episodeList/EpisodeList';
+export { default as SimilarProductions } from './similarProductions/SimilarProductions';

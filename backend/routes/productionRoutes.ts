@@ -154,11 +154,11 @@ productionRoutes.get('/similar-productions', jwtAuthentication, isSubscriptionAc
     const orderedRecommendations = sortRecommendations(recommendations, categories);
 
     var trimmedRecommendations;
-    if (orderedRecommendations.length <= 6) {
+    if (orderedRecommendations.length <= 7) {
         trimmedRecommendations = orderedRecommendations;
     }
     else {
-        trimmedRecommendations = [orderedRecommendations[0], orderedRecommendations[1], orderedRecommendations[2], orderedRecommendations[3], orderedRecommendations[4], orderedRecommendations[5]];
+        trimmedRecommendations = [orderedRecommendations[1], orderedRecommendations[2], orderedRecommendations[3], orderedRecommendations[4], orderedRecommendations[5], orderedRecommendations[6]];
     }
 
     const recommendationsWithURLs = await feedUrls(trimmedRecommendations);

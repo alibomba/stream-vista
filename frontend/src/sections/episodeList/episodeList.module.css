@@ -1,0 +1,16 @@
+.episodes {
+    margin-block: 3em;
+}
+
+.episodes__select {
+    font-size: 2rem;
+    border: 3px solid var(--primary);
+    border-radius: 10px;
+}
+
+.episodes__list {
+    margin-top: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
