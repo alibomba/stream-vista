@@ -1,0 +1,93 @@
+.trailer {
+    width: 100%;
+    height: 40em;
+    object-fit: cover;
+}
+
+.main {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: .75em;
+}
+
+.title {
+    font-size: 3rem;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.subtitle {
+    font-size: 2rem;
+    color: var(--black-65);
+    font-weight: 500;
+}
+
+.topButton {
+    all: unset;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    background-color: var(--primary);
+    padding: .3em .8em;
+    color: white;
+    font-weight: 500;
+    border-radius: 150px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.topButton:hover,
+.topButton:focus {
+    background-color: var(--primary-hover);
+}
+
+.description {
+    font-size: 1.7rem;
+    color: var(--black-65);
+    line-height: 1.7;
+    max-width: 65ch;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+}
+
+.column__heading {
+    font-size: 2rem;
+    font-weight: 500;
+}
+
+.column__content {
+    font-size: 1.7rem;
+    color: var(--black-65);
+}
+
+.capital__span {
+    text-transform: capitalize;
+}
+
+@media(max-width:500px) {
+    .title {
+        font-size: 2.5rem;
+    }
+
+    .subtitle,
+    .topButton,
+    .column__heading {
+        font-size: 1.6rem;
+    }
+
+    .column__content,
+    .description {
+        font-size: 1.25rem;
+    }
+}
