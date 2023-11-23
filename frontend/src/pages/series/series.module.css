@@ -1,0 +1,59 @@
+.main__controls {
+    padding: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2em;
+}
+
+.main__title {
+    font-size: 2.7rem;
+    text-align: center;
+}
+
+.title__episode {
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: var(--black-65);
+    margin-left: .3em;
+}
+
+.main__button {
+    all: unset;
+    font-size: 3rem;
+    display: grid;
+    place-items: center;
+    color: white;
+    background-color: var(--primary);
+    padding: .3em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.main__button:hover,
+.main__button:focus {
+    background-color: var(--primary-hover);
+}
+
+@media(max-width:730px) {
+    .main__title {
+        font-size: 2rem;
+    }
+
+    .main__button {
+        font-size: 2.4rem;
+    }
+}
+
+@media(max-width:600px) {
+    .main__controls {
+        flex-direction: column;
+    }
+}
+
+@media(max-width:350px) {
+    .main__controls {
+        padding: 1em;
+    }
+}

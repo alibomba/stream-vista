@@ -83,4 +83,37 @@ trackRoutes.get('/my-tracks', jwtAuthentication, isSubscriptionActive, async (re
     }
 });
 
+trackRoutes.post('/update-series-track/:id', jwtAuthentication, isSubscriptionActive, async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { user, timestamp } = req.body;
+
+    const track = await prisma.track.findUnique({
+        where: {
+            episodeId_userId: {
+                episodeId: id,
+                userId: user.id
+            }
+        }
+    });
+    if (track) await prisma.track.delete({ where: { episodeId_userId: { episodeId: id, userId: user.id } } });
+
+    if (!timestamp) return res.status(422).json({ message: 'Znacznik czasowy jest wymagany' });
+    const timestampNum = parseFloat(timestamp);
+    if (isNaN(timestampNum)) return res.status(422).json({ message: 'Znacznik czasowy musi być liczbą całkowitą' });
+
+    try {
+        await prisma.track.create({
+            data: {
+                isMovie: false,
+                episodeId: id,
+                userId: user.id,
+                timestamp: timestampNum
+            }
+        });
+        res.sendStatus(204);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+});
+
 export default trackRoutes;

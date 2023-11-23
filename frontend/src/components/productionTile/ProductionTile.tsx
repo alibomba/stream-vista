@@ -124,7 +124,7 @@ const ProductionTile = ({ id, thumbnailUrl, trailerUrl, title, description, warn
                             <Link title='Odtwórz' to={`/${isMovie ? 'film' : 'serial'}/${id}`} className={styles.info__button}>
                                 < FaPlay />
                             </Link >
-                            <button onClick={addToList} title='Dodaj do listy' className={styles.info__button}>
+                            <button onClick={addToList} title={isOnWatchList ? 'Usuń z listy' : 'Dodaj do listy'} className={styles.info__button}>
                                 {
                                     isOnWatchList ? <AiOutlineMinus /> : <AiOutlinePlus />
                                 }

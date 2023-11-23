@@ -115,7 +115,7 @@ model Track {
   movie        Movie?   @relation(fields: [movieId], references: [id])
   userId       String
   user         User     @relation(fields: [userId], references: [id])
-  timestamp    Int
+  timestamp    Float
   isOnHomepage Boolean  @default(true)
 
   @@unique([episodeId, userId])
