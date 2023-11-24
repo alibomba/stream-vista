@@ -95,11 +95,11 @@ trackRoutes.post('/update-series-track/:id', jwtAuthentication, isSubscriptionAc
             }
         }
     });
-    if (track) await prisma.track.delete({ where: { episodeId_userId: { episodeId: id, userId: user.id } } });
+    if (track) await prisma.track.delete({ where: {id: track.id} });
 
     if (!timestamp) return res.status(422).json({ message: 'Znacznik czasowy jest wymagany' });
     const timestampNum = parseFloat(timestamp);
-    if (isNaN(timestampNum)) return res.status(422).json({ message: 'Znacznik czasowy musi być liczbą całkowitą' });
+    if (isNaN(timestampNum)) return res.status(422).json({ message: 'Znacznik czasowy musi być liczbą' });
 
     try {
         await prisma.track.create({

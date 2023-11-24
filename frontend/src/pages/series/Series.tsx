@@ -25,6 +25,7 @@ const Series = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [series, setSeries] = useState<SeriesPage | null>(null);
+    const [requestCooldown, setRequestCooldown] = useState<number>(20);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'good' });
     const [error, setError] = useState<string | null>(null);
@@ -57,22 +58,29 @@ const Series = () => {
 
 
     async function updateTrack(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
-        if (series) {
-            const video = e.target as HTMLVideoElement;
-            const currentTime = video.currentTime / 60;
-            if (currentTime !== 0) {
-                try {
-                    await axiosClient({
-                        method: 'post',
-                        url: `/update-series-track/${series.episodeId}`,
-                        data: {
-                            timestamp: currentTime
-                        }
-                    });
-                } catch (err) {
-                    setError('Coś poszło nie tak, spróbuj ponownie później...');
+        if(requestCooldown === 0){
+            if (series) {
+                const video = e.target as HTMLVideoElement;
+                const currentTime = video.currentTime / 60;
+                if (currentTime !== 0) {
+                    try {
+                        await axiosClient({
+                            method: 'post',
+                            url: `/update-series-track/${series.episodeId}`,
+                            data: {
+                                timestamp: currentTime
+                            }
+                        });
+                        setRequestCooldown(20);
+                    } catch (err) {
+                        console.log(err)
+                        setError('Coś poszło nie tak, spróbuj ponownie później...');
+                    }
                 }
             }
+        }
+        else{
+            setRequestCooldown(prev => prev - 1);
         }
     }
 
