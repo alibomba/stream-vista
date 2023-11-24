@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaPlay } from 'react-icons/fa';
 import { AiOutlineInfoCircle, AiOutlinePlus, AiOutlineMinus } from 'react-icons/ai';
+import { IoMdClose } from 'react-icons/io';
 import Error from '../error/Error';
 import Popup from '../popup/Popup';
 import axiosClient from '../../axiosClient';
@@ -105,6 +106,32 @@ const ProductionTile = ({ id, thumbnailUrl, trailerUrl, title, description, warn
         }
     }
 
+    async function deleteTrack() {
+        try {
+            if (isMovie) {
+                await axiosClient({
+                    method: 'delete',
+                    url: '/delete-track',
+                    data: {
+                        movieId: id
+                    }
+                });
+            } else {
+                await axiosClient({
+                    method: 'delete',
+                    url: '/delete-track',
+                    data: {
+                        seriesId: id
+                    }
+                });
+            }
+            setPopup({ content: 'Odśwież stronę', active: true, type: 'good' });
+            setTimeout(() => setPopup(prev => { return { ...prev, active: false } }), 4000);
+        } catch (err) {
+            setError('Coś poszło nie tak, spróbuj ponownie później...');
+        }
+    }
+
     if (error) {
         return <Error>{error}</Error>
     }
@@ -117,7 +144,7 @@ const ProductionTile = ({ id, thumbnailUrl, trailerUrl, title, description, warn
                         <img className={styles.production__thumbnail} src={thumbnailUrl} alt={`miniatura ${isMovie ? 'filmu' : 'serialu'} `} />
                 }
 
-                <div className={styles.production__info}>
+                <div className={`${styles.production__info} ${track && styles.production__info_withTrack}`}>
                     <div className={styles.info__top}>
                         <h3 className={styles.info__title}>{title}</h3>
                         <div className={styles.info__buttons}>
@@ -149,7 +176,7 @@ const ProductionTile = ({ id, thumbnailUrl, trailerUrl, title, description, warn
                     }
                     < p className={styles.info__description}>{description}</p>
                     {
-                        track && <p className={styles.info__progress}>{track}</p>
+                        track && <p className={styles.info__progress}><button onClick={deleteTrack} className={styles.info__button} title='Usuń ze strony głównej'><IoMdClose /></button>{track}</p>
                     }
                 </div >
             </article >

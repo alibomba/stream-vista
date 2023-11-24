@@ -95,7 +95,7 @@ trackRoutes.post('/update-series-track/:id', jwtAuthentication, isSubscriptionAc
             }
         }
     });
-    if (track) await prisma.track.delete({ where: {id: track.id} });
+    if (track) await prisma.track.delete({ where: { id: track.id } });
 
     if (!timestamp) return res.status(422).json({ message: 'Znacznik czasowy jest wymagany' });
     const timestampNum = parseFloat(timestamp);
@@ -113,6 +113,45 @@ trackRoutes.post('/update-series-track/:id', jwtAuthentication, isSubscriptionAc
         res.sendStatus(204);
     } catch (err) {
         res.sendStatus(500);
+    }
+});
+
+trackRoutes.delete('/delete-track', jwtAuthentication, isSubscriptionActive, async (req: Request, res: Response) => {
+    const { movieId, seriesId, user } = req.body;
+    if (movieId) {
+        try {
+            await prisma.track.update({
+                where: { movieId_userId: { movieId, userId: user.id } },
+                data: { isOnHomepage: false }
+            });
+            res.sendStatus(204);
+        } catch (err) {
+            res.sendStatus(500);
+        }
+    } else if (seriesId) {
+        const episodes = await prisma.episode.findMany({ where: { seriesId } });
+        let episodeId: string | null = null;
+        for (const episode of episodes) {
+            const trackFound = await prisma.track.findUnique({ where: { episodeId_userId: { episodeId: episode.id, userId: user.id } } });
+            if (trackFound) episodeId = trackFound.episodeId;
+        }
+
+        if (episodeId) {
+            try {
+                await prisma.track.update({
+                    where: { episodeId_userId: { episodeId, userId: user.id } },
+                    data: { isOnHomepage: false }
+                });
+                res.sendStatus(204);
+            } catch (err) {
+                res.sendStatus(500);
+            }
+        } else {
+            res.sendStatus(404);
+        }
+    }
+    else {
+        res.status(422).json({ message: 'Identyfikator produkcji jest wymagany' });
     }
 });
 

@@ -27,12 +27,15 @@
     top: 100%;
     width: 100%;
     padding: .8em;
-    padding-bottom: 2.5em;
     background-color: #2E2E2E;
     color: white;
     border-radius: 0 0 15px 15px;
     box-shadow: 7px 7px 10px 10px rgba(0, 0, 0, 0.25);
     display: none;
+}
+
+.production__info_withTrack {
+    padding-bottom: 4.5em;
 }
 
 .production_active .production__info {
@@ -86,6 +89,9 @@
 
 .info__progress {
     position: absolute;
+    display: flex;
+    align-items: center;
+    gap: .3em;
     font-size: 2rem;
     font-weight: 500;
     bottom: .3em;
