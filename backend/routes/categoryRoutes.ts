@@ -38,4 +38,20 @@ categoryRoutes.post('/update-users-categories/:id', jwtAuthentication, isSubscri
     }
 });
 
+categoryRoutes.delete('/clear-users-categories', jwtAuthentication, isSubscriptionActive, async (req: Request, res: Response) => {
+    const { user } = req.body;
+
+    try {
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                preferencedCategories: []
+            }
+        });
+        res.sendStatus(204);
+    } catch (err) {
+        res.sendStatus(500);
+    }
+});
+
 export default categoryRoutes;
