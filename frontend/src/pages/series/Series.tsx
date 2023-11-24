@@ -58,7 +58,7 @@ const Series = () => {
 
 
     async function updateTrack(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
-        if(requestCooldown === 0){
+        if (requestCooldown === 0) {
             if (series) {
                 const video = e.target as HTMLVideoElement;
                 const currentTime = video.currentTime / 60;
@@ -73,13 +73,12 @@ const Series = () => {
                         });
                         setRequestCooldown(20);
                     } catch (err) {
-                        console.log(err)
                         setError('Coś poszło nie tak, spróbuj ponownie później...');
                     }
                 }
             }
         }
-        else{
+        else {
             setRequestCooldown(prev => prev - 1);
         }
     }

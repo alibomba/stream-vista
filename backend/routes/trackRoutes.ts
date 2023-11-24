@@ -20,7 +20,7 @@ trackRoutes.get('/movie-track-string/:id', jwtAuthentication, isSubscriptionActi
         }
     });
     if (!track) return res.json({ message: null });
-    res.json({ message: `Minuta: ${track.timestamp}` });
+    res.json({ message: `Minuta: ${track.timestamp.toFixed(0)}` });
 });
 
 trackRoutes.get('/series-track-string/:id', jwtAuthentication, isSubscriptionActive, async (req: Request, res: Response) => {
@@ -152,6 +152,39 @@ trackRoutes.delete('/delete-track', jwtAuthentication, isSubscriptionActive, asy
     }
     else {
         res.status(422).json({ message: 'Identyfikator produkcji jest wymagany' });
+    }
+});
+
+trackRoutes.post('/update-movie-track/:id', jwtAuthentication, isSubscriptionActive, async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { user, timestamp } = req.body;
+
+    const track = await prisma.track.findUnique({
+        where: {
+            movieId_userId: {
+                movieId: id,
+                userId: user.id
+            }
+        }
+    });
+    if (track) await prisma.track.delete({ where: { id: track.id } });
+
+    if (!timestamp) return res.status(422).json({ message: 'Znacznik czasowy jest wymagany' });
+    const timestampNum = parseFloat(timestamp);
+    if (isNaN(timestampNum)) return res.status(422).json({ message: 'Znacznik czasowy musi być liczbą' });
+
+    try {
+        await prisma.track.create({
+            data: {
+                isMovie: true,
+                movieId: id,
+                userId: user.id,
+                timestamp: timestampNum
+            }
+        });
+        res.sendStatus(204);
+    } catch (err) {
+        res.sendStatus(500);
     }
 });
 

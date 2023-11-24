@@ -25,6 +25,7 @@ model User {
   tracks                Track[]
   preferencedCategories String[]
   stripeCustomerId      String?   @unique
+  joinedAt              DateTime  @default(now()) @db.Timestamptz()
 }
 
 model Series {

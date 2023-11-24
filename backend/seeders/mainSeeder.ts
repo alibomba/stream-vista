@@ -30,7 +30,7 @@ async function main() {
     await seriesSeeder();
     await episodeSeeder();
     await userSeeder();
-    await trackSeeder();
+    // await trackSeeder();
     await toWatchSeeder();
 }
 
