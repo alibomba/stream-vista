@@ -1,6 +1,0 @@
-header(logo, strona glowna, seriale, filmy, moja lista, gap 50%, search bar, konto, wyloguj sie)
-hero losowego wybranego dla uzytkownika serialu lub filmu, zapetlony trailer z przyciskami odtworz, wiecej informacji
-ogladaj dalej jezeli istnieje
-moja lista jezeli istnieje
-wybrane dla ciebie i grid filmow i seriali ktore algorytm wybral dla tego uzytkownika(tile kazdej produkcji jest jego miniatura, a po najechaniu zaczyna
-leciec looped trailer, sa mini szczegoly i przyciski odtworz, dodaj do listy i wiecej informacji)
