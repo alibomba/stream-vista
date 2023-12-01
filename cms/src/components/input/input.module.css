@@ -1,0 +1,19 @@
+.input {
+    font-size: 2rem;
+    padding: .5em;
+    border: 3px solid var(--secondary);
+    border-radius: 10px;
+    box-shadow: 5px 5px 4px 0px rgba(4, 0, 255, 0.40);
+}
+
+@media(max-width:450px) {
+    .input {
+        font-size: 1.5rem;
+    }
+}
+
+@media(max-width:330px) {
+    .input {
+        width: 100%;
+    }
+}

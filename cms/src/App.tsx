@@ -11,6 +11,7 @@ function App() {
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/' element={<DefaultLayout />}>
+            <Route index element={<Seriale />} />
             <Route path='/seriale' element={<Seriale />} />
             <Route path='/serial/:id' element={<Serial />} />
             <Route path='/odcinek/:id' element={<Odcinek />} />
