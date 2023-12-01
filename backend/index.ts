@@ -18,6 +18,9 @@ import movieRoutes from './routes/movieRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 
 import { authRoutes as adminAuthRoutes } from './routes/admin/authRoutes';
+import { seriesRoutes as adminSeriesRoutes } from './routes/admin/seriesRoutes';
+import { movieRoutes as adminMovieRoutes } from './routes/admin/movieRoutes';
+import { categoryRoutes as adminCategoryRoutes } from './routes/admin/categoryRoutes';
 
 app.use(cors({
     origin: [process.env.FRONTEND_URL as string, process.env.CMS_URL as string]
@@ -39,6 +42,9 @@ app.use('/api', movieRoutes);
 app.use('/api', settingsRoutes);
 
 app.use('/admin', adminAuthRoutes);
+app.use('/admin', adminSeriesRoutes);
+app.use('/admin', adminMovieRoutes);
+app.use('/admin', adminCategoryRoutes);
 
 const PORT = process.env.PORT || 8000;
 

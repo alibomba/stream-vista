@@ -1,0 +1,36 @@
+.main {
+    padding: 2em;
+}
+
+.main__button {
+    font-size: 2.5rem;
+    color: white;
+    background-color: var(--primary);
+    text-decoration: none;
+    padding: .3em .8em;
+    font-weight: 500;
+    border-radius: 150px;
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    transition: var(--transition);
+}
+
+.main__button:hover,
+.main__button:focus {
+    background-color: var(--primary-hover);
+}
+
+.main__list {
+    margin-top: 5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2em;
+}
+
+@media(max-width:570px) {
+    .main {
+        padding: 1em;
+    }
+}

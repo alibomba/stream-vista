@@ -27,7 +27,7 @@ axiosClient.interceptors.response.use(
                 method: 'post',
                 url: '/refresh',
                 data: {
-                    refreshToken: localStorage.getItem('adminRefreshToken') || ''
+                    token: localStorage.getItem('adminRefreshToken') || ''
                 }
             })
                 .then(res => {

@@ -13,9 +13,12 @@ function App() {
           <Route path='/' element={<DefaultLayout />}>
             <Route index element={<Seriale />} />
             <Route path='/seriale' element={<Seriale />} />
+            <Route path='/serial/dodaj' element={<Serial />} />
             <Route path='/serial/:id' element={<Serial />} />
             <Route path='/odcinek/:id' element={<Odcinek />} />
+            <Route path='/odcinek/dodaj/:idSerialu' element={<Odcinek />} />
             <Route path='/filmy' element={<Filmy />} />
+            <Route path='/film/dodaj' element={<Film />} />
             <Route path='/film/:id' element={<Film />} />
             <Route path='/napisy/:type/:id' element={<Napisy />} />
             <Route path='/kategorie' element={<Kategorie />} />

@@ -1,0 +1,50 @@
+.main {
+    padding: 2em;
+}
+
+.main__form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+    flex-wrap: wrap;
+}
+
+.form__button {
+    font-size: 2rem;
+    padding: .5em .8em;
+    color: white;
+    background-color: var(--primary);
+    font-weight: 500;
+    border-radius: 150px;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form__button:hover,
+.form__button:focus {
+    background-color: var(--primary-hover);
+}
+
+.main__list {
+    margin-top: 5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2em;
+}
+
+@media(max-width:500px) {
+    .main {
+        padding: 1em;
+    }
+
+    .main__form {
+        gap: 1em;
+    }
+
+    .form__button {
+        font-size: 1.5rem;
+    }
+}
