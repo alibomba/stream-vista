@@ -17,8 +17,10 @@ import seriesRoutes from './routes/seriesRoutes';
 import movieRoutes from './routes/movieRoutes';
 import settingsRoutes from './routes/settingsRoutes';
 
+import { authRoutes as adminAuthRoutes } from './routes/admin/authRoutes';
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL
+    origin: [process.env.FRONTEND_URL as string, process.env.CMS_URL as string]
 }));
 
 app.use(express.json());
@@ -35,6 +37,8 @@ app.use('/api', watchListRoutes);
 app.use('/api', seriesRoutes);
 app.use('/api', movieRoutes);
 app.use('/api', settingsRoutes);
+
+app.use('/admin', adminAuthRoutes);
 
 const PORT = process.env.PORT || 8000;
 

@@ -8,6 +8,7 @@ import episodeSeeder from "./episodeSeeder";
 import userSeeder from "./userSeeder";
 import trackSeeder from "./trackSeeder";
 import toWatchSeeder from "./toWatchSeeder";
+import adminSeeder from "./adminSeeder";
 
 async function truncate() {
     await prisma.category.deleteMany();
@@ -21,6 +22,8 @@ async function truncate() {
     await prisma.user.deleteMany();
     await prisma.contactMessage.deleteMany();
     await prisma.newsletterMember.deleteMany();
+    await prisma.admin.deleteMany();
+    await prisma.adminRefreshToken.deleteMany();
 }
 
 async function main() {
@@ -32,6 +35,7 @@ async function main() {
     await userSeeder();
     // await trackSeeder();
     await toWatchSeeder();
+    await adminSeeder();
 }
 
 main();

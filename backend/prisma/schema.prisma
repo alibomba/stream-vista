@@ -28,6 +28,18 @@ model User {
   joinedAt              DateTime  @default(now()) @db.Timestamptz()
 }
 
+model Admin {
+  id       String @id @default(uuid())
+  login    String @unique @db.VarChar(255)
+  password String
+}
+
+model AdminRefreshToken {
+  id       String   @id @default(uuid())
+  token    String   @unique
+  issuedAt DateTime @default(now()) @db.Timestamptz()
+}
+
 model Series {
   id           String    @id @default(uuid())
   title        String    @unique @db.VarChar(150)
