@@ -4,7 +4,6 @@ import Error from '../error/Error';
 import axiosClient from '../../axiosClient';
 
 import styles from './categoryTile.module.css';
-
 interface Props extends Category {
     setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
     setPopup: React.Dispatch<React.SetStateAction<Popup>>;
