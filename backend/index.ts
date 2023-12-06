@@ -21,6 +21,7 @@ import { authRoutes as adminAuthRoutes } from './routes/admin/authRoutes';
 import { seriesRoutes as adminSeriesRoutes } from './routes/admin/seriesRoutes';
 import { movieRoutes as adminMovieRoutes } from './routes/admin/movieRoutes';
 import { categoryRoutes as adminCategoryRoutes } from './routes/admin/categoryRoutes';
+import { episodeRoutes as adminEpisodeRoutes } from './routes/admin/episodeRoutes';
 
 app.use(cors({
     origin: [process.env.FRONTEND_URL as string, process.env.CMS_URL as string]
@@ -45,6 +46,7 @@ app.use('/admin', adminAuthRoutes);
 app.use('/admin', adminSeriesRoutes);
 app.use('/admin', adminMovieRoutes);
 app.use('/admin', adminCategoryRoutes);
+app.use('/admin', adminEpisodeRoutes);
 
 const PORT = process.env.PORT || 8000;
 

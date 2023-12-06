@@ -9,7 +9,6 @@ import { v4 } from 'uuid';
 import { EpisodeParams } from '../../types';
 import { writeFileSync, promises } from 'fs';
 import getVideoDuration from '../../utils/getVideoDuration';
-import getVideoHalfFrame from '../../utils/getVideoHalfFrame';
 
 const seriesRoutes: Router = Router();
 const prisma = new PrismaClient();
@@ -222,13 +221,13 @@ seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Resp
             } catch (err) {
                 deleteBuffer();
                 await promises.unlink(tempVideoPath);
-                response = { message: 'duration retrieval', status: 500 };
+                response = { message: '', status: 500 };
                 break;
             }
             if (!durationInSeconds) {
                 deleteBuffer();
                 await promises.unlink(tempVideoPath);
-                response = { message: 'duration retrieval', status: 500 };
+                response = { message: '', status: 500 };
                 break;
             }
 
@@ -273,7 +272,7 @@ seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Resp
             } catch (err) {
                 deleteBuffer();
                 await promises.unlink(tempVideoPath);
-                response = { message: 'uploading source', status: 500 };
+                response = { message: '', status: 500 };
                 break;
             }
 
@@ -295,7 +294,7 @@ seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Resp
             } catch (err: any) {
                 deleteBuffer();
                 await promises.unlink(tempVideoPath);
-                response = { message: err.message, status: 500 };
+                response = { message: '', status: 500 };
                 break;
             }
         }
