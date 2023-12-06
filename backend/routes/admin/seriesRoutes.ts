@@ -3,9 +3,13 @@ import { PrismaClient } from '@prisma/client';
 import adminAuthentication from '../../middleware/adminAuthentication';
 import { S3Client, GetObjectCommand, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { seriesUpdate } from '../../middleware/seriesUpload';
+import { seriesCreate, seriesUpdate } from '../../middleware/seriesUpload';
 import { MulterError } from 'multer';
 import { v4 } from 'uuid';
+import { EpisodeParams } from '../../types';
+import { writeFileSync, unlinkSync } from 'fs';
+import getVideoDuration from '../../utils/getVideoDuration';
+import getVideoHalfFrame from '../../utils/getVideoHalfFrame';
 
 const seriesRoutes: Router = Router();
 const prisma = new PrismaClient();
@@ -40,6 +44,264 @@ seriesRoutes.get('/series/:id', adminAuthentication, async (req: Request, res: R
     if (!series) return res.sendStatus(404);
 
     res.json(series);
+});
+
+seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Response) => {
+    seriesCreate(req, res, async err => {
+        if (err) {
+            if (err instanceof MulterError) {
+                if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+                    if (err.field === 'thumbnail') {
+                        return res.status(422).json({ message: 'Miniatura musi być obrazem' });
+                    } else if (err.field === 'trailer') {
+                        return res.status(422).json({ message: 'Zwiastun musi być filmem' });
+                    } else if (err.field === 'episodesSources') {
+                        return res.status(422).json({ message: 'Plik odcinka musi być filmem' });
+                    }
+                }
+                else {
+                    return res.sendStatus(500);
+                }
+            } else {
+                return res.sendStatus(500);
+            }
+        }
+
+        const { title, description, warnings, actors, creators, categories, seasons, year, episodesAmount, episodes } = req.body;
+        let thumbnail;
+        if (req.files && typeof req.files === 'object' && 'thumbnail' in req.files) {
+            thumbnail = req.files['thumbnail'][0];
+        }
+        if (!thumbnail) return res.status(422).json({ message: 'Miniatura jest wymagana' });
+        if (thumbnail.size > 3 * 1024 * 1024) return res.status(422).json({ message: 'Miniatura może mieć maksymalnie 3MB' });
+
+        let trailer;
+        if (req.files && typeof req.files === 'object' && 'trailer' in req.files) {
+            trailer = req.files['trailer'][0];
+        }
+        if (!trailer) return res.status(422).json({ message: 'Zwiastun jest wymagany' });
+        if (trailer.size > 35 * 1024 * 1024) return res.status(422).json({ message: 'Zwiastun może mieć maksymalnie 35MB' });
+
+        if (!episodesAmount) return res.status(422).json({ message: 'Liczba odcinków jest wymagana' });
+        const episodesAmountNumber = parseInt(episodesAmount);
+        let episodesSources;
+        if (req.files && typeof req.files === 'object' && 'episodesSources' in req.files) {
+            episodesSources = req.files['episodesSources'];
+            const sourcesLength = episodesSources.length;
+            if (sourcesLength !== episodesAmountNumber) return res.status(422).json({ message: 'Każdy odcinek musi mieć plik źródłowy' });
+        } else {
+            return res.status(422).json({ message: 'Pliki odcinków są wymagane' });
+        }
+        if (!title) return res.status(422).json({ message: 'Tytuł jest wymagany' });
+        if (title.length > 150) return res.status(422).json({ message: 'Tytuł może mieć maksymalnie 150 znaków' });
+        if (!description) return res.status(422).json({ message: 'Opis jest wymagany' });
+        if (description.length > 700) return res.status(422).json({ message: 'Opis może mieć maksymalnie 700 znaków' });
+        if (!creators) return res.status(422).json({ message: 'Twórcy są wymagani' });
+        if (creators.length > 300) return res.status(422).json({ message: 'Twórcy mogą mieć maksymalnie 300 znaków' });
+        if (!categories) return res.status(422).json({ message: 'Kategorie są wymagane' });
+        if (categories.length > 300) return res.status(422).json({ message: 'Kategorie mogą mieć maksymalnie 300 znaków' });
+        if (!seasons) return res.status(422).json({ message: 'Liczba sezonów jest wymagana' });
+        if (!year) return res.status(422).json({ message: 'Rok jest wymagany' });
+        if (!episodes) return res.status(422).json({ message: 'Odcinki są wymagane' });
+
+        const episodesArray: EpisodeParams[] = JSON.parse(episodes);
+        const processedEpisodesArray = [];
+        for (let i = 0; i < episodesAmountNumber; i++) {
+            const episode = episodesArray[i];
+            const episodeSource = episodesSources[i];
+            if (episodeSource.size > 300 * 1024 * 1024) {
+                episodeSource.buffer = Buffer.from([]);
+                return res.status(422).json({ message: 'Odcinek może mieć maksymalnie 300MB' });
+            }
+            processedEpisodesArray.push({ ...episode, sourceFile: episodeSource });
+        }
+
+        const thumbnailFileName = `${v4()}.jpg`;
+        const thumbnailKey = `series/thumbnails/${thumbnailFileName}`;
+        const thumbnailParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: thumbnailKey,
+            Body: thumbnail.buffer,
+            ContentType: thumbnail.mimetype
+        };
+        const thumbnailCommand = new PutObjectCommand(thumbnailParams);
+        try {
+            await s3.send(thumbnailCommand);
+        } catch (err) {
+            thumbnail.buffer = Buffer.from([]);
+            return res.sendStatus(500);
+        }
+
+        const trailerFileName = `${v4()}.mp4`;
+        const trailerKey = `series/trailers/${trailerFileName}`;
+        const trailerParams = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: trailerKey,
+            Body: trailer.buffer,
+            ContentType: trailer.mimetype
+        };
+        const trailerCommand = new PutObjectCommand(trailerParams);
+        try {
+            await s3.send(trailerCommand);
+        } catch (err) {
+            trailer.buffer = Buffer.from([]);
+            return res.sendStatus(500);
+        }
+
+        const seriesId = v4();
+
+        let response: { status: number, message: string } | null = null;
+        await Promise.all([processedEpisodesArray.forEach(async episode => {
+            const deleteBuffer = () => { episode.sourceFile.buffer = Buffer.from([]); }
+            if (!episode.sourceFile) {
+                response = { message: 'Plik odcinka jest wymagany', status: 422 };
+                return;
+            }
+            if (!episode.title) {
+                deleteBuffer();
+                response = { message: 'Tytuł odcinka jest wymagany', status: 422 };
+                return;
+            }
+            if (episode.title.length > 150) {
+                deleteBuffer();
+                response = { message: 'Tytuł odcinka może mieć maksymalnie 150 znaków', status: 422 };
+                return;
+            }
+            if (!episode.description) {
+                deleteBuffer();
+                response = { message: 'Opis odcinka jest wymagany', status: 422 };
+                return;
+            }
+            if (episode.description.length > 700) {
+                deleteBuffer();
+                response = { message: 'Opis odcinka może mieć maksymalnie 700 znaków', status: 422 };
+                return;
+            }
+            if (!episode.season) {
+                deleteBuffer();
+                response = { message: 'Sezon jest wymagany', status: 422 };
+                return;
+            }
+            if (!episode.episodeNumber) {
+                deleteBuffer();
+                response = { message: 'Numer odcinka jest wymagany', status: 422 };
+                return;
+            }
+
+            const tempVideoPath = `${__dirname}/temp/${v4()}.mp4`;
+            writeFileSync(tempVideoPath, episode.sourceFile.buffer);
+
+            let durationInSeconds;
+            try {
+                durationInSeconds = await getVideoDuration(tempVideoPath);
+            } catch (err) {
+                deleteBuffer();
+                unlinkSync(tempVideoPath);
+                response = { message: '', status: 500 };
+                return;
+            }
+            if (!durationInSeconds) {
+                deleteBuffer();
+                unlinkSync(tempVideoPath);
+                response = { message: '', status: 500 };
+                return;
+            }
+
+            const halfDurationInSeconds = durationInSeconds / 2;
+
+            let episodeThumbnailBuffer;
+            try {
+                episodeThumbnailBuffer = await getVideoHalfFrame(tempVideoPath, halfDurationInSeconds);
+            } catch (err) {
+                deleteBuffer();
+                unlinkSync(tempVideoPath);
+                response = { message: '', status: 500 };
+                return;
+            }
+
+            const episodeThumbnailName = `${v4()}.jpg`;
+            const episodeThumbnailParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `series/episodes/thumbnails/${episodeThumbnailName}`,
+                Body: episodeThumbnailBuffer,
+                ContentType: 'image/jpeg'
+            };
+            const episodeThumbnailCommand = new PutObjectCommand(episodeThumbnailParams);
+            try {
+                await s3.send(episodeThumbnailCommand);
+            } catch (err) {
+                deleteBuffer();
+                response = { message: '', status: 500 };
+                return;
+            }
+
+            const episodeFilename = `${v4()}.mp4`;
+            const sourceParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `series/episodes/${episodeFilename}`,
+                Body: episode.sourceFile.buffer,
+                ContentType: episode.sourceFile.mimetype
+            };
+            const sourceCommand = new PutObjectCommand(sourceParams);
+            try {
+                await s3.send(sourceCommand);
+            } catch (err) {
+                deleteBuffer();
+                response = { message: '', status: 500 };
+                return;
+            }
+
+            try {
+                await prisma.episode.create({
+                    data: {
+                        title: episode.title,
+                        description: episode.description,
+                        season: episode.season,
+                        episodeNumber: episode.episodeNumber,
+                        thumbnailUrl: episodeThumbnailName,
+                        sourceUrl: episodeFilename,
+                        seriesId: seriesId,
+                        minutes: durationInSeconds / 60
+                    }
+                });
+                deleteBuffer();
+            } catch (err) {
+                deleteBuffer();
+                response = { message: '', status: 500 };
+                return;
+            }
+        })]);
+        if (response) {
+            const resp = response as { status: number, message: string };
+            return res.status(resp.status).json({ message: resp.message });
+        }
+
+        const actorsArr: string[] = JSON.parse(actors);
+        const creatorsArr: string[] = JSON.parse(creators);
+        const actorsLowercase = actorsArr.map(actor => actor.toLowerCase());
+        const creatorsLowercase = creatorsArr.map(creator => creator.toLowerCase());
+
+        try {
+            await prisma.series.create({
+                data: {
+                    id: seriesId,
+                    title,
+                    description,
+                    warnings: JSON.parse(warnings),
+                    actors: actorsLowercase,
+                    creators: creatorsLowercase,
+                    categories: JSON.parse(categories),
+                    seasons: parseInt(seasons),
+                    year: parseInt(year),
+                    trailerUrl: trailerFileName,
+                    thumbnailUrl: thumbnailFileName
+                }
+            });
+            res.status(201).json({ message: 'Utworzono serial' });
+        } catch (err) {
+            return res.sendStatus(500);
+        }
+    });
 });
 
 seriesRoutes.put('/series/:id', adminAuthentication, async (req: Request, res: Response) => {
@@ -133,8 +395,10 @@ seriesRoutes.put('/series/:id', adminAuthentication, async (req: Request, res: R
             try {
                 await s3.send(command);
             } catch (err) {
+                thumbnail.buffer = Buffer.from([]);
                 return res.sendStatus(500);
             }
+            thumbnail.buffer = Buffer.from([]);
             thumbnail = fileName;
         }
         if (trailer) {
@@ -158,9 +422,20 @@ seriesRoutes.put('/series/:id', adminAuthentication, async (req: Request, res: R
                 ContentType: trailer.mimetype
             };
             const command = new PutObjectCommand(params);
-            await s3.send(command);
+            try {
+                await s3.send(command);
+            } catch (err) {
+                trailer.buffer = Buffer.from([]);
+                return res.sendStatus(500);
+            }
+            trailer.buffer = Buffer.from([]);
             trailer = fileName;
         }
+
+        const actorsArr: string[] = JSON.parse(actors);
+        const creatorsArr: string[] = JSON.parse(creators);
+        const actorsLowercase = actorsArr.map(actor => actor.toLowerCase());
+        const creatorsLowercase = creatorsArr.map(creator => creator.toLowerCase());
 
         try {
             await prisma.series.update({
@@ -169,8 +444,8 @@ seriesRoutes.put('/series/:id', adminAuthentication, async (req: Request, res: R
                     title,
                     description,
                     warnings: JSON.parse(warnings),
-                    actors: JSON.parse(actors),
-                    creators: JSON.parse(creators),
+                    actors: actorsLowercase,
+                    creators: creatorsLowercase,
                     categories: JSON.parse(categories),
                     seasons: parseInt(seasons),
                     year: parseInt(year),

@@ -99,6 +99,24 @@
     font-weight: 500;
 }
 
+.form__addEpisode {
+    all: unset;
+    display: grid;
+    place-items: center;
+    font-size: 4rem;
+    background-color: var(--primary);
+    color: white;
+    padding: .15em;
+    border-radius: 150px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.form__addEpisode:hover,
+.form__addEpisode:focus {
+    background-color: var(--primary-hover);
+}
+
 @media(max-width: 590px) {
     .form__textarea {
         width: 100%;

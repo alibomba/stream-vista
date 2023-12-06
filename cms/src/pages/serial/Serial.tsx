@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MdMovie } from 'react-icons/md';
 import { BsFillImageFill } from 'react-icons/bs';
+import { HiPlus } from 'react-icons/hi';
 import Error from '../../components/error/Error';
 import Popup from '../../components/popup/Popup';
 import Input from '../../components/input/Input';
@@ -11,23 +12,19 @@ import axios from 'axios';
 
 import styles from './serial.module.css';
 
-interface SeriesForm {
-    title: string,
-    description: string,
-    trailerUrl: string,
-    thumbnailUrl: string,
-    warnings: string[],
-    actors: string[],
-    creators: string[],
-    categories: string[],
-    seasons: number | string,
-    year: number | string
+interface EpisodeToSend {
+    title: string;
+    description: string;
+    source?: File | null;
+    season: string | number;
+    episodeNumber: string | number;
 }
 
 const Serial = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [seriesData, setSeriesData] = useState<SeriesForm>({ title: '', description: '', trailerUrl: '', thumbnailUrl: '', warnings: [], actors: [], creators: [], categories: [], seasons: '', year: '' });
+    const [episodes, setEpisodes] = useState<EpisodeData[]>([{ title: '', description: '', source: null, season: '', episodeNumber: '' }]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [episodesAmount, setEpisodesAmount] = useState<number>(1);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'good' });
@@ -139,6 +136,14 @@ const Serial = () => {
         }
     }
 
+    function addEpisode() {
+        setEpisodesAmount(prev => prev + 1);
+        setEpisodes(prev => {
+            prev.push({ title: '', description: '', source: null, season: '', episodeNumber: '' });
+            return prev;
+        });
+    }
+
     async function updateSeries(e: React.FormEvent) {
         e.preventDefault();
         const form = e.target as HTMLFormElement;
@@ -192,6 +197,69 @@ const Serial = () => {
     async function createSeries(e: React.FormEvent) {
         e.preventDefault();
         const form = e.target as HTMLFormElement;
+        const thumbnail = form.querySelector('#thumbnail') as HTMLInputElement;
+        const thumbnailFile = thumbnail.files?.[0];
+        const trailer = form.querySelector('#trailer') as HTMLInputElement;
+        const trailerFile = trailer.files?.[0];
+        const formData = new FormData();
+        formData.append('title', seriesData.title);
+        formData.append('description', seriesData.description);
+        formData.append('thumbnail', thumbnailFile || '');
+        formData.append('trailer', trailerFile || '');
+        formData.append('warnings', JSON.stringify(seriesData.warnings));
+        formData.append('actors', JSON.stringify(seriesData.actors));
+        formData.append('creators', JSON.stringify(seriesData.creators));
+        formData.append('categories', JSON.stringify(seriesData.categories));
+        formData.append('seasons', seriesData.seasons.toString());
+        formData.append('year', seriesData.year.toString());
+        formData.append('episodesAmount', episodesAmount.toString());
+
+        const episodesArr: EpisodeToSend[] = [];
+        const episodesSources: (File | null)[] = [];
+
+        episodes.forEach((episode) => {
+            episodesSources.push(episode.source);
+            const episodeToSend = { ...episode } as EpisodeToSend;
+            delete episodeToSend.source;
+            episodesArr.push(episodeToSend);
+        });
+
+        episodesSources.forEach((source) => {
+            formData.append(`episodesSources`, source || '');
+        })
+
+        formData.append('episodes', JSON.stringify(episodesArr));
+
+        try {
+            await axiosClient({
+                method: 'post',
+                url: '/series',
+                data: formData,
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total && progressEvent.loaded) {
+                        const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        if (percentage < 100) {
+                            setUploadProgress(percentage);
+                        } else if (percentage === 100) {
+                            setUploadProgress(null);
+                        }
+                    }
+                }
+            });
+            setValidationError(null);
+            setPopup({ content: 'Utworzono serial', active: true, type: 'good' });
+            setTimeout(() => setPopup(prev => { return { ...prev, active: false } }), 4000);
+        } catch (err: any) {
+            if (err?.response?.status === 422) {
+                setValidationError(err?.response?.data?.message);
+            } else {
+                setError('Coś poszło nie tak, spróbuj ponownie później...');
+            }
+        }
+
     }
 
     if (error) {
@@ -264,12 +332,15 @@ const Serial = () => {
                     {
                         Array.from({ length: episodesAmount }, (_, index) => {
                             return (
-                                <EpisodeForm key={index} />
+                                <EpisodeForm key={index} index={index} episodes={episodes} setEpisodes={setEpisodes} />
                             )
                         })
                     }
                 </>
             }
+            <button type='button' onClick={addEpisode} title='Dodaj odcinek' className={styles.form__addEpisode}>
+                <HiPlus />
+            </button>
             {
                 validationError && <p role='alert' aria-live='assertive' className={styles.form__error}>{validationError}</p>
             }

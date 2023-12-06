@@ -1,0 +1,47 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2em;
+    margin-bottom: 1.5em;
+    padding-bottom: 4.5em;
+    border-bottom: 3px solid var(--black);
+}
+
+.form__textarea {
+    font-size: 2rem;
+    padding: .5em;
+    border: 3px solid var(--secondary);
+    border-radius: 10px;
+    box-shadow: 5px 5px 4px 0px rgba(4, 0, 255, 0.40);
+    resize: none;
+}
+
+.form__column {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: flex-start;
+}
+
+.form__label {
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+
+.form__fileLabel__icon {
+    display: grid;
+    place-items: center;
+    font-size: 8rem;
+    color: var(--primary);
+    border: 3px solid var(--primary);
+    padding: .2em;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.form__fileLabel__text {
+    font-size: 2rem;
+    color: var(--black-65);
+    cursor: pointer;
+}
