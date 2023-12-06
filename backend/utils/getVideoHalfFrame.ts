@@ -1,6 +1,6 @@
 import ffmpeg from 'fluent-ffmpeg';
 ffmpeg.setFfmpegPath(require('ffmpeg-static'));
-import { unlinkSync, readFile } from 'fs';
+import { readFile } from 'fs';
 import { v4 } from 'uuid';
 
 function getVideoHalfFrame(tempVideoPath: string, halfDurationInSeconds: number): Promise<Buffer> {
@@ -9,10 +9,8 @@ function getVideoHalfFrame(tempVideoPath: string, halfDurationInSeconds: number)
         ffmpeg(tempVideoPath)
             .seekInput(halfDurationInSeconds)
             .frames(1)
-            .on('end', () => {
-                unlinkSync(tempVideoPath);
-                readFile(framePath, (err, data) => {
-                    unlinkSync(framePath);
+            .on('end', async () => {
+                readFile(framePath, async (err, data) => {
                     if (err || !data) reject();
                     resolve(data);
                 })

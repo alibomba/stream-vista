@@ -7,7 +7,7 @@ import { seriesCreate, seriesUpdate } from '../../middleware/seriesUpload';
 import { MulterError } from 'multer';
 import { v4 } from 'uuid';
 import { EpisodeParams } from '../../types';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync, promises } from 'fs';
 import getVideoDuration from '../../utils/getVideoDuration';
 import getVideoHalfFrame from '../../utils/getVideoHalfFrame';
 
@@ -150,132 +150,6 @@ seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Resp
 
         const seriesId = v4();
 
-        let response: { status: number, message: string } | null = null;
-        await Promise.all([processedEpisodesArray.forEach(async episode => {
-            const deleteBuffer = () => { episode.sourceFile.buffer = Buffer.from([]); }
-            if (!episode.sourceFile) {
-                response = { message: 'Plik odcinka jest wymagany', status: 422 };
-                return;
-            }
-            if (!episode.title) {
-                deleteBuffer();
-                response = { message: 'Tytuł odcinka jest wymagany', status: 422 };
-                return;
-            }
-            if (episode.title.length > 150) {
-                deleteBuffer();
-                response = { message: 'Tytuł odcinka może mieć maksymalnie 150 znaków', status: 422 };
-                return;
-            }
-            if (!episode.description) {
-                deleteBuffer();
-                response = { message: 'Opis odcinka jest wymagany', status: 422 };
-                return;
-            }
-            if (episode.description.length > 700) {
-                deleteBuffer();
-                response = { message: 'Opis odcinka może mieć maksymalnie 700 znaków', status: 422 };
-                return;
-            }
-            if (!episode.season) {
-                deleteBuffer();
-                response = { message: 'Sezon jest wymagany', status: 422 };
-                return;
-            }
-            if (!episode.episodeNumber) {
-                deleteBuffer();
-                response = { message: 'Numer odcinka jest wymagany', status: 422 };
-                return;
-            }
-
-            const tempVideoPath = `${__dirname}/temp/${v4()}.mp4`;
-            writeFileSync(tempVideoPath, episode.sourceFile.buffer);
-
-            let durationInSeconds;
-            try {
-                durationInSeconds = await getVideoDuration(tempVideoPath);
-            } catch (err) {
-                deleteBuffer();
-                unlinkSync(tempVideoPath);
-                response = { message: '', status: 500 };
-                return;
-            }
-            if (!durationInSeconds) {
-                deleteBuffer();
-                unlinkSync(tempVideoPath);
-                response = { message: '', status: 500 };
-                return;
-            }
-
-            const halfDurationInSeconds = durationInSeconds / 2;
-
-            let episodeThumbnailBuffer;
-            try {
-                episodeThumbnailBuffer = await getVideoHalfFrame(tempVideoPath, halfDurationInSeconds);
-            } catch (err) {
-                deleteBuffer();
-                unlinkSync(tempVideoPath);
-                response = { message: '', status: 500 };
-                return;
-            }
-
-            const episodeThumbnailName = `${v4()}.jpg`;
-            const episodeThumbnailParams = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: `series/episodes/thumbnails/${episodeThumbnailName}`,
-                Body: episodeThumbnailBuffer,
-                ContentType: 'image/jpeg'
-            };
-            const episodeThumbnailCommand = new PutObjectCommand(episodeThumbnailParams);
-            try {
-                await s3.send(episodeThumbnailCommand);
-            } catch (err) {
-                deleteBuffer();
-                response = { message: '', status: 500 };
-                return;
-            }
-
-            const episodeFilename = `${v4()}.mp4`;
-            const sourceParams = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: `series/episodes/${episodeFilename}`,
-                Body: episode.sourceFile.buffer,
-                ContentType: episode.sourceFile.mimetype
-            };
-            const sourceCommand = new PutObjectCommand(sourceParams);
-            try {
-                await s3.send(sourceCommand);
-            } catch (err) {
-                deleteBuffer();
-                response = { message: '', status: 500 };
-                return;
-            }
-
-            try {
-                await prisma.episode.create({
-                    data: {
-                        title: episode.title,
-                        description: episode.description,
-                        season: episode.season,
-                        episodeNumber: episode.episodeNumber,
-                        thumbnailUrl: episodeThumbnailName,
-                        sourceUrl: episodeFilename,
-                        seriesId: seriesId,
-                        minutes: durationInSeconds / 60
-                    }
-                });
-                deleteBuffer();
-            } catch (err) {
-                deleteBuffer();
-                response = { message: '', status: 500 };
-                return;
-            }
-        })]);
-        if (response) {
-            const resp = response as { status: number, message: string };
-            return res.status(resp.status).json({ message: resp.message });
-        }
-
         const actorsArr: string[] = JSON.parse(actors);
         const creatorsArr: string[] = JSON.parse(creators);
         const actorsLowercase = actorsArr.map(actor => actor.toLowerCase());
@@ -297,10 +171,140 @@ seriesRoutes.post('/series', adminAuthentication, async (req: Request, res: Resp
                     thumbnailUrl: thumbnailFileName
                 }
             });
-            res.status(201).json({ message: 'Utworzono serial' });
         } catch (err) {
             return res.sendStatus(500);
         }
+
+        let response: { status: number, message: string } | null = null;
+        for (const episode of processedEpisodesArray) {
+            const deleteBuffer = () => { episode.sourceFile.buffer = Buffer.from([]); }
+            if (!episode.sourceFile) {
+                response = { message: 'Plik odcinka jest wymagany', status: 422 };
+                break;
+            }
+            if (!episode.title) {
+                deleteBuffer();
+                response = { message: 'Tytuł odcinka jest wymagany', status: 422 };
+                break;
+            }
+            if (episode.title.length > 150) {
+                deleteBuffer();
+                response = { message: 'Tytuł odcinka może mieć maksymalnie 150 znaków', status: 422 };
+                break;
+            }
+            if (!episode.description) {
+                deleteBuffer();
+                response = { message: 'Opis odcinka jest wymagany', status: 422 };
+                break;
+            }
+            if (episode.description.length > 700) {
+                deleteBuffer();
+                response = { message: 'Opis odcinka może mieć maksymalnie 700 znaków', status: 422 };
+                break;
+            }
+            if (!episode.season) {
+                deleteBuffer();
+                response = { message: 'Sezon jest wymagany', status: 422 };
+                break;
+            }
+            if (!episode.episodeNumber) {
+                deleteBuffer();
+                response = { message: 'Numer odcinka jest wymagany', status: 422 };
+                break;
+            }
+
+            const tempVideoPath = `${__dirname}/temp/${v4()}.mp4`;
+            writeFileSync(tempVideoPath, episode.sourceFile.buffer);
+
+            let durationInSeconds;
+            try {
+                durationInSeconds = await getVideoDuration(tempVideoPath);
+            } catch (err) {
+                deleteBuffer();
+                await promises.unlink(tempVideoPath);
+                response = { message: 'duration retrieval', status: 500 };
+                break;
+            }
+            if (!durationInSeconds) {
+                deleteBuffer();
+                await promises.unlink(tempVideoPath);
+                response = { message: 'duration retrieval', status: 500 };
+                break;
+            }
+
+            // nie dziala xd
+            // const halfDurationInSeconds = durationInSeconds / 2;
+
+            // let episodeThumbnailBuffer;
+            // try {
+            //     episodeThumbnailBuffer = await getVideoHalfFrame(tempVideoPath, halfDurationInSeconds);
+            // } catch (err) {
+            //     deleteBuffer();
+            //     response = { message: 'getting frame', status: 500 };
+            //     break;
+            // }
+
+            // const episodeThumbnailName = `${v4()}.jpg`;
+            // const episodeThumbnailParams = {
+            //     Bucket: process.env.AWS_BUCKET_NAME,
+            //     Key: `series/episodes/thumbnails/${episodeThumbnailName}`,
+            //     Body: episodeThumbnailBuffer,
+            //     ContentType: 'image/jpeg'
+            // };
+            // const episodeThumbnailCommand = new PutObjectCommand(episodeThumbnailParams);
+            // try {
+            //     await s3.send(episodeThumbnailCommand);
+            // } catch (err) {
+            //     deleteBuffer();
+            //     response = { message: 'uploading frame', status: 500 };
+            //     break;
+            // }
+
+            const episodeFilename = `${v4()}.mp4`;
+            const sourceParams = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: `series/episodes/${episodeFilename}`,
+                Body: episode.sourceFile.buffer,
+                ContentType: episode.sourceFile.mimetype
+            };
+            const sourceCommand = new PutObjectCommand(sourceParams);
+            try {
+                await s3.send(sourceCommand);
+            } catch (err) {
+                deleteBuffer();
+                await promises.unlink(tempVideoPath);
+                response = { message: 'uploading source', status: 500 };
+                break;
+            }
+
+            try {
+                await prisma.episode.create({
+                    data: {
+                        title: episode.title,
+                        description: episode.description,
+                        season: episode.season,
+                        episodeNumber: episode.episodeNumber,
+                        thumbnailUrl: 'episode-thumbnail-placeholder.jpg',
+                        sourceUrl: episodeFilename,
+                        seriesId: seriesId,
+                        minutes: durationInSeconds / 60
+                    }
+                });
+                deleteBuffer();
+                await promises.unlink(tempVideoPath);
+            } catch (err: any) {
+                deleteBuffer();
+                await promises.unlink(tempVideoPath);
+                response = { message: err.message, status: 500 };
+                break;
+            }
+        }
+        if (response) {
+            await prisma.series.delete({ where: { id: seriesId } });
+            const resp = response as { status: number, message: string };
+            return res.status(resp.status).json({ message: resp.message });
+        }
+        res.status(201).json({ message: 'Utworzono serial' });
     });
 });
 

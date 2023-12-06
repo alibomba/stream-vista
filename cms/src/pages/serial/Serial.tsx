@@ -29,7 +29,7 @@ const Serial = () => {
     const [episodesAmount, setEpisodesAmount] = useState<number>(1);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'good' });
     const [validationError, setValidationError] = useState<string | null>(null);
-    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+    const [uploadProgress, setUploadProgress] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -175,13 +175,15 @@ const Serial = () => {
                     if (progressEvent.total && progressEvent.loaded) {
                         const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                         if (percentage < 100) {
-                            setUploadProgress(percentage);
+                            setUploadProgress(`Przesyłanie ${percentage}%`);
                         } else {
-                            setUploadProgress(null);
+                            setUploadProgress('Przetwarzanie... (może potrwać parę minut)');
                         }
                     }
                 }
             });
+            setValidationError(null);
+            setUploadProgress(null);
             setPopup({ content: 'Zaktualizowano serial', active: true, type: 'good' });
             setTimeout(() => setPopup(prev => { return { ...prev, active: false } }), 4000);
         } catch (err: any) {
@@ -242,14 +244,15 @@ const Serial = () => {
                     if (progressEvent.total && progressEvent.loaded) {
                         const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                         if (percentage < 100) {
-                            setUploadProgress(percentage);
-                        } else if (percentage === 100) {
-                            setUploadProgress(null);
+                            setUploadProgress(`Przesyłanie ${percentage}%`);
+                        } else {
+                            setUploadProgress('Przetwarzanie... (może potrwać parę minut)');
                         }
                     }
                 }
             });
             setValidationError(null);
+            setUploadProgress(null);
             setPopup({ content: 'Utworzono serial', active: true, type: 'good' });
             setTimeout(() => setPopup(prev => { return { ...prev, active: false } }), 4000);
         } catch (err: any) {
@@ -336,16 +339,16 @@ const Serial = () => {
                             )
                         })
                     }
+                    <button type='button' onClick={addEpisode} title='Dodaj odcinek' className={styles.form__addEpisode}>
+                        <HiPlus />
+                    </button>
                 </>
             }
-            <button type='button' onClick={addEpisode} title='Dodaj odcinek' className={styles.form__addEpisode}>
-                <HiPlus />
-            </button>
             {
                 validationError && <p role='alert' aria-live='assertive' className={styles.form__error}>{validationError}</p>
             }
             {
-                uploadProgress !== null && <p role='alert' aria-live='assertive' className={styles.form__progress}>Przesyłanie {uploadProgress}%</p>
+                uploadProgress !== null && <p role='alert' aria-live='assertive' className={styles.form__progress}>{uploadProgress}</p>
             }
             <button className={styles.form__button}>Opublikuj</button>
             <Popup active={popup.active} type={popup.type}>{popup.content}</Popup>
