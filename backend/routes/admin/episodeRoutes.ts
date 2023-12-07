@@ -20,9 +20,16 @@ const s3 = new S3Client({
 
 episodeRoutes.get('/episode/:id', adminAuthentication, async (req: Request, res: Response) => {
     const { id } = req.params;
-    const episode = await prisma.episode.findUnique({ where: { id }, select: { title: true, description: true, sourceUrl: true, season: true, episodeNumber: true } });
+    const episode = await prisma.episode.findUnique({ where: { id }, select: { title: true, description: true, season: true, episodeNumber: true } });
     if (!episode) return res.status(404).json({ message: 'Odcinek nie istnieje' });
     res.json(episode);
+});
+
+episodeRoutes.get('/series-episodes/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const episodes = await prisma.episode.findMany({ where: { seriesId: id }, select: { id: true, title: true, season: true, episodeNumber: true } });
+    if (episodes.length === 0) return res.status(404).json({ message: 'Serial nie istnieje' });
+    res.json(episodes);
 });
 
 episodeRoutes.post('/episode/:id', adminAuthentication, async (req: Request, res: Response) => {
@@ -64,6 +71,7 @@ episodeRoutes.post('/episode/:id', adminAuthentication, async (req: Request, res
         let durationInSeconds;
         try {
             durationInSeconds = await getVideoDuration(tempVideoPath);
+            await promises.unlink(tempVideoPath);
         } catch (err) {
             source.buffer = Buffer.from([]);
             await promises.unlink(tempVideoPath);
@@ -75,7 +83,8 @@ episodeRoutes.post('/episode/:id', adminAuthentication, async (req: Request, res
             return res.sendStatus(500);
         }
 
-        const key = `series/episodes/${v4()}.mp4`;
+        const sourceFileName = `${v4()}.mp4`;
+        const key = `series/episodes/${sourceFileName}`;
         const params = {
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: key,
@@ -89,7 +98,7 @@ episodeRoutes.post('/episode/:id', adminAuthentication, async (req: Request, res
             source.buffer = Buffer.from([]);
             return res.sendStatus(500);
         }
-        source = key;
+        source = sourceFileName;
 
         try {
             await prisma.episode.create({
@@ -142,8 +151,27 @@ episodeRoutes.put('/episode/:id', adminAuthentication, async (req: Request, res:
         if (!season) return res.status(422).json({ message: 'Sezon jest wymagany' });
         if (!episodeNumber) return res.status(422).json({ message: 'Numer odcinka jest wymagany' });
 
+        let durationInSeconds;
         if (source) {
-            const key = `series/episodes/${v4()}.mp4`;
+            const tempVideoPath = `${__dirname}/temp/${v4()}.mp4`;
+            writeFileSync(tempVideoPath, source.buffer);
+
+            try {
+                durationInSeconds = await getVideoDuration(tempVideoPath);
+                await promises.unlink(tempVideoPath);
+            } catch (err) {
+                source.buffer = Buffer.from([]);
+                await promises.unlink(tempVideoPath);
+                return res.sendStatus(500);
+            }
+            if (!durationInSeconds) {
+                source.buffer = Buffer.from([]);
+                await promises.unlink(tempVideoPath);
+                return res.sendStatus(500);
+            }
+
+            const sourceFileName = `${v4()}.mp4`;
+            const key = `series/episodes/${sourceFileName}`;
             const params = {
                 Bucket: process.env.AWS_BUCKET_NAME,
                 Key: key,
@@ -157,7 +185,7 @@ episodeRoutes.put('/episode/:id', adminAuthentication, async (req: Request, res:
                 source.buffer = Buffer.from([]);
                 return res.sendStatus(500);
             }
-            source = key;
+            source = sourceFileName;
         }
 
         try {
@@ -167,6 +195,7 @@ episodeRoutes.put('/episode/:id', adminAuthentication, async (req: Request, res:
                     title,
                     description,
                     sourceUrl: source && source,
+                    minutes: durationInSeconds && durationInSeconds / 60,
                     season: parseInt(season),
                     episodeNumber: parseInt(episodeNumber)
                 }

@@ -117,6 +117,41 @@
     background-color: var(--primary-hover);
 }
 
+.form__episodesList {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 2em;
+    width: 100%;
+}
+
+.form__episodeTile {
+    width: 100%;
+    border: 3px solid var(--secondary);
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2em;
+}
+
+.episode__title {
+    font-size: 2.3rem;
+}
+
+.episode__number {
+    font-size: 2rem;
+    color: var(--black-65);
+}
+
+.episode__edit {
+    all: unset;
+    font-size: 2.5rem;
+    color: #00CBFF;
+    cursor: pointer;
+}
+
 @media(max-width: 590px) {
     .form__textarea {
         width: 100%;
@@ -140,6 +175,22 @@
     .form__error,
     .form__button {
         font-size: 2rem;
+    }
+
+    .episode__title {
+        font-size: 1.9rem;
+    }
+
+    .episode__number {
+        font-size: 1.75rem;
+    }
+
+    .episode__edit {
+        font-size: 2rem;
+    }
+
+    .form__addEpisode {
+        font-size: 3.3rem;
     }
 }
 

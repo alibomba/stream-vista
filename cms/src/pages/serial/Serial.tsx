@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { MdMovie } from 'react-icons/md';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { MdMovie, MdEdit } from 'react-icons/md';
 import { BsFillImageFill } from 'react-icons/bs';
 import { HiPlus } from 'react-icons/hi';
 import Error from '../../components/error/Error';
@@ -25,6 +25,7 @@ const Serial = () => {
     const { id } = useParams();
     const [seriesData, setSeriesData] = useState<SeriesForm>({ title: '', description: '', trailerUrl: '', thumbnailUrl: '', warnings: [], actors: [], creators: [], categories: [], seasons: '', year: '' });
     const [episodes, setEpisodes] = useState<EpisodeData[]>([{ title: '', description: '', source: null, season: '', episodeNumber: '' }]);
+    const [existingEpisodes, setExistingEpisodes] = useState<EpisodeInSeries[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [episodesAmount, setEpisodesAmount] = useState<number>(1);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'good' });
@@ -55,6 +56,22 @@ const Serial = () => {
                         cancelToken: source.token
                     });
                     setSeriesData(data);
+                } catch (err: any) {
+                    if (err?.response?.status === 404) {
+                        navigate('/404');
+                    }
+                    else {
+                        setError('Coś poszło nie tak, spróbuj ponownie później...');
+                    }
+                }
+
+                try {
+                    const { data } = await axiosClient({
+                        method: 'get',
+                        url: `/series-episodes/${id}`,
+                        cancelToken: source.token
+                    });
+                    setExistingEpisodes(data);
                 } catch (err: any) {
                     if (err?.response?.status === 404) {
                         navigate('/404');
@@ -329,20 +346,43 @@ const Serial = () => {
                 onChange={changeData}
             />
             {
-                !id &&
-                <>
-                    <p className={styles.form__sectionHeading}>Odcinki</p>
-                    {
-                        Array.from({ length: episodesAmount }, (_, index) => {
-                            return (
-                                <EpisodeForm key={index} index={index} episodes={episodes} setEpisodes={setEpisodes} />
-                            )
-                        })
-                    }
-                    <button type='button' onClick={addEpisode} title='Dodaj odcinek' className={styles.form__addEpisode}>
-                        <HiPlus />
-                    </button>
-                </>
+                !id ?
+                    <>
+                        <p className={styles.form__sectionHeading}>Odcinki</p>
+                        {
+                            Array.from({ length: episodesAmount }, (_, index) => {
+                                return (
+                                    <EpisodeForm key={index} index={index} episodes={episodes} setEpisodes={setEpisodes} />
+                                )
+                            })
+                        }
+                        <button type='button' onClick={addEpisode} title='Dodaj odcinek' className={styles.form__addEpisode}>
+                            <HiPlus />
+                        </button>
+                    </>
+                    :
+                    <>
+                        <p className={styles.form__sectionHeading}>Odcinki</p>
+                        <div className={styles.form__episodesList}>
+                            {
+                                existingEpisodes.length > 0 &&
+                                existingEpisodes.map(episode => {
+                                    return (
+                                        <article key={episode.id} className={styles.form__episodeTile}>
+                                            <h3 className={styles.episode__title}>{episode.title}</h3>
+                                            <p className={styles.episode__number}>S{episode.season}:O{episode.episodeNumber}</p>
+                                            <Link title='Edytuj odcinek' to={`/odcinek/${episode.id}`} className={styles.episode__edit}>
+                                                <MdEdit />
+                                            </Link>
+                                        </article>
+                                    )
+                                })
+                            }
+                        </div>
+                        <Link title='Dodaj odcinek' to={`/odcinek/dodaj/${id}`} className={styles.form__addEpisode}>
+                            <HiPlus />
+                        </Link>
+                    </>
             }
             {
                 validationError && <p role='alert' aria-live='assertive' className={styles.form__error}>{validationError}</p>

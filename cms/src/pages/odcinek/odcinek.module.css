@@ -1,0 +1,94 @@
+.form {
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2em;
+}
+
+.form__textarea {
+    font-size: 2rem;
+    padding: .5em;
+    border: 3px solid var(--secondary);
+    border-radius: 10px;
+    box-shadow: 5px 5px 4px 0px rgba(4, 0, 255, 0.40);
+    resize: none;
+}
+
+.form__column {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: flex-start;
+}
+
+.form__label {
+    font-size: 2.5rem;
+    font-weight: 500;
+}
+
+.form__fileLabel__icon {
+    display: grid;
+    place-items: center;
+    font-size: 8rem;
+    color: var(--primary);
+    border: 3px solid var(--primary);
+    padding: .2em;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.form__fileLabel__text {
+    font-size: 2rem;
+    color: var(--black-65);
+    cursor: pointer;
+}
+
+.form__error,
+.form__button,
+.form__progress {
+    font-size: 2.3rem;
+    font-weight: 500;
+}
+
+.form__error {
+    color: red;
+}
+
+.form__button {
+    color: white;
+    background-color: var(--primary);
+    border: none;
+    padding: .3em .8em;
+    border-radius: 150px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.form__button:hover,
+.form__button:focus {
+    background-color: var(--primary-hover);
+}
+
+@media(max-width: 590px) {
+    .form__textarea {
+        width: 100%;
+    }
+}
+
+@media(max-width:450px) {
+    .form {
+        padding: 1em;
+    }
+
+    .form__textarea {
+        font-size: 1.5rem;
+    }
+
+    .form__label,
+    .form__error,
+    .form__button {
+        font-size: 2rem;
+    }
+}
