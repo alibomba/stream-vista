@@ -25,6 +25,10 @@ const Series = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [series, setSeries] = useState<SeriesPage | null>(null);
+    const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+    const [subtitleLanguage, setSubtitleLanguage] = useState<string>('Brak');
+    const [activeSubtitles, setActiveSubtitles] = useState<Subtitle[]>([]);
+    const [currentSubtitle, setCurrentSubtitle] = useState<string | null>(null);
     const [requestCooldown, setRequestCooldown] = useState<number>(20);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [popup, setPopup] = useState<Popup>({ content: null, active: false, type: 'good' });
@@ -33,22 +37,41 @@ const Series = () => {
     useEffect(() => {
         const source = axios.CancelToken.source();
 
-        axiosClient({
-            method: 'get',
-            url: `/series/${id}`,
-            cancelToken: source.token
-        })
-            .then(res => {
-                setSeries(res.data);
-            })
-            .catch(err => {
+        async function fetchData() {
+            let episodeId;
+            try {
+                const { data } = await axiosClient({
+                    method: 'get',
+                    url: `/series/${id}`,
+                    cancelToken: source.token
+                });
+                setSeries(data);
+                episodeId = data.episodeId;
+            } catch (err: any) {
                 if (err?.response?.status === 404) {
                     navigate('/404');
                 } else {
                     setError('Coś poszło nie tak, spróbuj ponownie później...');
                 }
-            })
-            .finally(() => setIsLoading(false));
+            }
+
+            if (episodeId) {
+                try {
+                    const { data } = await axiosClient({
+                        method: 'get',
+                        url: `/episode-subtitles/${episodeId}`,
+                        cancelToken: source.token
+                    });
+                    setSubtitles(data);
+                } catch (err) {
+                    setError('Coś poszło nie tak, spróbuj ponownie później...');
+                }
+            }
+
+            setIsLoading(false);
+        }
+
+        fetchData();
 
         return () => {
             source.cancel();
@@ -56,6 +79,15 @@ const Series = () => {
 
     }, [id]);
 
+    useEffect(() => {
+        const newLanguageSubtitles = subtitles.filter(item => item.language === subtitleLanguage);
+        setActiveSubtitles(newLanguageSubtitles);
+    }, [subtitleLanguage]);
+
+    async function handleProgress(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
+        await updateTrack(e);
+        await handleCurrentSubtitles(e);
+    }
 
     async function updateTrack(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
         if (requestCooldown === 0) {
@@ -80,6 +112,22 @@ const Series = () => {
         }
         else {
             setRequestCooldown(prev => prev - 1);
+        }
+    }
+
+    async function handleCurrentSubtitles(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
+        const video = e.target as HTMLVideoElement;
+        const currentTime = video.currentTime;
+        const currentSubtitles = activeSubtitles.filter(item => {
+            if (currentTime >= item.startSecond && currentTime <= item.endSecond) {
+                return true;
+            } else return false;
+        });
+        if (currentSubtitles.length !== 0) {
+            setCurrentSubtitle(currentSubtitles[0].text);
+        }
+        else {
+            setCurrentSubtitle(null);
         }
     }
 
@@ -121,6 +169,11 @@ const Series = () => {
         }
     }
 
+    function changeLanguage(e: React.ChangeEvent) {
+        const select = e.target as HTMLSelectElement;
+        setSubtitleLanguage(select.value);
+    }
+
     if (isLoading) {
         return <Loading />
     }
@@ -134,7 +187,7 @@ const Series = () => {
             {
                 series &&
                 <>
-                    <VideoPlayer handleProgress={updateTrack} videoSource={series.url} currentTime={series.timestamp} />
+                    <VideoPlayer currentSubtitle={currentSubtitle} handleProgress={handleProgress} videoSource={series.url} currentTime={series.timestamp} />
                     <main className={styles.main}>
                         <div className={styles.main__controls}>
                             <button onClick={previousEpisode} title='Poprzedni odcinek' className={styles.main__button}>
@@ -145,6 +198,12 @@ const Series = () => {
                                 <IoIosSkipForward />
                             </button>
                         </div>
+                        <p className={styles.main__text}>Napisy</p>
+                        <select onChange={changeLanguage} className={styles.main__select} aria-label='Napisy'>
+                            <option value="Brak">Brak</option>
+                            <option value="Polski">Polski</option>
+                            <option value="Angielski">Angielski</option>
+                        </select>
                         <SimilarProductions categories={series.categories} />
                     </main>
                     <Popup type={popup.type} active={popup.active}>{popup.content}</Popup>

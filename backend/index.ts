@@ -16,6 +16,7 @@ import watchListRoutes from './routes/watchListRoutes';
 import seriesRoutes from './routes/seriesRoutes';
 import movieRoutes from './routes/movieRoutes';
 import settingsRoutes from './routes/settingsRoutes';
+import subtitleRoutes from './routes/subtitleRoutes';
 
 import { authRoutes as adminAuthRoutes } from './routes/admin/authRoutes';
 import { seriesRoutes as adminSeriesRoutes } from './routes/admin/seriesRoutes';
@@ -42,6 +43,7 @@ app.use('/api', watchListRoutes);
 app.use('/api', seriesRoutes);
 app.use('/api', movieRoutes);
 app.use('/api', settingsRoutes);
+app.use('/api', subtitleRoutes);
 
 app.use('/admin', adminAuthRoutes);
 app.use('/admin', adminSeriesRoutes);

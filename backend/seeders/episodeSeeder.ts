@@ -5,6 +5,7 @@ async function episodeSeeder() {
     await prisma.episode.createMany({
         data: [
             {
+                id: "013ce5a0-3bd5-45ee-87b1-f03933a0f7ef",
                 title: 'Tajemnicze Świątynie Majów',
                 description: 'Bohaterowie wyruszają do dżungli w Ameryce Środkowej, aby odnaleźć zapomnianą świątynię Majów. W trakcie eksploracji odkrywają starożytne rytuały i tajemnice związane z kulturą Majów.',
                 season: 1,

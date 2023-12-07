@@ -115,3 +115,23 @@
     background: var(--secondary);
     cursor: pointer;
 }
+
+.player__subtitles {
+    font-size: 3rem;
+    color: white;
+    font-weight: 500;
+    position: absolute;
+    bottom: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 55ch;
+    background-color: rgba(0, 0, 0, .5);
+    padding: .25em;
+    text-align: center;
+}
+
+@media(max-width:560px) {
+    .player__subtitles {
+        font-size: 2.3rem;
+    }
+}

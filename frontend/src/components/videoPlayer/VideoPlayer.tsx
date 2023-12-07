@@ -6,12 +6,13 @@ import { BsArrowsFullscreen } from 'react-icons/bs';
 interface Props {
     videoSource: string,
     currentTime: number,
-    handleProgress: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => Promise<void>
+    handleProgress: (e: React.SyntheticEvent<HTMLVideoElement, Event>) => Promise<void>,
+    currentSubtitle: string | null
 }
 
 import styles from './videoPlayer.module.css';
 
-const VideoPlayer = ({ videoSource, currentTime, handleProgress }: Props) => {
+const VideoPlayer = ({ videoSource, currentTime, handleProgress, currentSubtitle }: Props) => {
     const [isPlaying, setIsPlaying] = useState<boolean>(false);
     const [volume, setVolume] = useState<number>(1);
     const [playbackRate, setPlaybackRate] = useState<number>(1);
@@ -160,6 +161,9 @@ const VideoPlayer = ({ videoSource, currentTime, handleProgress }: Props) => {
                     </button>
                 </div>
             </div>
+            {
+                currentSubtitle && <p role='alert' aria-live='assertive' className={styles.player__subtitles}>{currentSubtitle}</p>
+            }
         </div>
     )
 }

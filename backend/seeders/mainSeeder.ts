@@ -6,9 +6,9 @@ import movieSeeder from "./movieSeeder";
 import seriesSeeder from "./seriesSeeder";
 import episodeSeeder from "./episodeSeeder";
 import userSeeder from "./userSeeder";
-import trackSeeder from "./trackSeeder";
 import toWatchSeeder from "./toWatchSeeder";
 import adminSeeder from "./adminSeeder";
+import subtitleSeeder from "./subtitleSeeder";
 
 async function truncate() {
     await prisma.category.deleteMany();
@@ -33,9 +33,9 @@ async function main() {
     await seriesSeeder();
     await episodeSeeder();
     await userSeeder();
-    // await trackSeeder();
     await toWatchSeeder();
     await adminSeeder();
+    await subtitleSeeder();
 }
 
 main();

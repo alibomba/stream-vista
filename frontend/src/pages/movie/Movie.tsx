@@ -21,34 +21,63 @@ const Movie = () => {
     const navigate = useNavigate();
     const [movie, setMovie] = useState<MoviePage | null>(null);
     const [requestCooldown, setRequestCooldown] = useState<number>(20);
+    const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
+    const [subtitleLanguage, setSubtitleLanguage] = useState<string>('Brak');
+    const [activeSubtitles, setActiveSubtitles] = useState<Subtitle[]>([]);
+    const [currentSubtitle, setCurrentSubtitle] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const source = axios.CancelToken.source();
 
-        axiosClient({
-            method: 'get',
-            url: `/movie/${id}`,
-            cancelToken: source.token
-        })
-            .then(res => {
-                setMovie(res.data);
-            })
-            .catch(err => {
+        async function fetchData() {
+            try {
+                const { data } = await axiosClient({
+                    method: 'get',
+                    url: `/movie/${id}`,
+                    cancelToken: source.token
+                });
+                setMovie(data);
+            } catch (err: any) {
                 if (err?.response?.status === 404) {
                     navigate('/404');
                 } else {
                     setError('Coś poszło nie tak, spróbuj ponownie później...');
                 }
-            })
-            .finally(() => setIsLoading(false));
+            }
+
+            try {
+                const { data } = await axiosClient({
+                    method: 'get',
+                    url: `/movie-subtitles/${id}`,
+                    cancelToken: source.token
+                });
+                setSubtitles(data);
+            } catch (err) {
+                setError('Coś poszło nie tak, spróbuj ponownie później...');
+            }
+
+            setIsLoading(false);
+        }
+
+        fetchData();
 
         return () => {
             source.cancel();
         }
 
     }, [id]);
+
+    useEffect(() => {
+        const newLanguageSubtitles = subtitles.filter(item => item.language === subtitleLanguage);
+        setActiveSubtitles(newLanguageSubtitles);
+    }, [subtitleLanguage]);
+
+    async function handleProgress(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
+        await updateTrack(e);
+        await handleCurrentSubtitles(e);
+    }
 
     async function updateTrack(e: React.SyntheticEvent<HTMLVideoElement, Event>) {
         if (requestCooldown === 0) {
@@ -75,6 +104,27 @@ const Movie = () => {
         }
     }
 
+    async function handleCurrentSubtitles(e: React.SyntheticEvent<HTMLVideoElement, Event>): Promise<void> {
+        const video = e.target as HTMLVideoElement;
+        const currentTime = video.currentTime;
+        const currentSubtitles = activeSubtitles.filter(item => {
+            if (currentTime >= item.startSecond && currentTime <= item.endSecond) {
+                return true;
+            } else return false;
+        });
+        if (currentSubtitles.length !== 0) {
+            setCurrentSubtitle(currentSubtitles[0].text);
+        }
+        else {
+            setCurrentSubtitle(null);
+        }
+    }
+
+    function changeLanguage(e: React.ChangeEvent) {
+        const select = e.target as HTMLSelectElement;
+        setSubtitleLanguage(select.value);
+    }
+
     if (isLoading) {
         return <Loading />
     }
@@ -88,9 +138,17 @@ const Movie = () => {
             {
                 movie &&
                 <>
-                    <VideoPlayer videoSource={movie.url} currentTime={movie.timestamp} handleProgress={updateTrack} />
-                    <h1 className={styles.title}>{movie.title}</h1>
-                    <SimilarProductions categories={movie.categories} />
+                    <VideoPlayer currentSubtitle={currentSubtitle} videoSource={movie.url} currentTime={movie.timestamp} handleProgress={handleProgress} />
+                    <main className={styles.main}>
+                        <h1 className={styles.main__title}>{movie.title}</h1>
+                        <p className={styles.main__text}>Napisy</p>
+                        <select onChange={changeLanguage} className={styles.main__select} aria-label='Napisy'>
+                            <option value="Brak">Brak</option>
+                            <option value="Polski">Polski</option>
+                            <option value="Angielski">Angielski</option>
+                        </select>
+                        <SimilarProductions categories={movie.categories} />
+                    </main>
                 </>
             }
         </>
